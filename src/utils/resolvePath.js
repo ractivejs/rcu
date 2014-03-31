@@ -2,23 +2,12 @@ define( function () {
 
 	'use strict';
 
-	return function resolvePath ( relativePath, base, force ) {
+	return function resolvePath ( relativePath, base ) {
 		var pathParts, relativePathParts, part;
 
-		// `force` is `true` if this comes from a top-level call
-		// (i.e. from `Ractive.load()`) - in this case, all paths
-		// should be treated as relative to Ractive.baseUrl
-		if ( !force ) {
-			if ( relativePath.charAt( 0 ) !== '.' ) {
-				// not a relative path!
-				return relativePath;
-			}
-		} else {
-			if ( base && base.charAt( base.length - 1 ) !== '/' ) {
-				// e.g. `Ractive.baseUrl === 'imports'` - should be
-				// treated as `imports/`
-				base += '/';
-			}
+		if ( relativePath.charAt( 0 ) !== '.' ) {
+			// not a relative path!
+			return relativePath;
 		}
 
 		// 'foo/bar/baz.html' -> ['foo', 'bar', 'baz.html']

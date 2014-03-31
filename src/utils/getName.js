@@ -2,6 +2,8 @@ define( function () {
 
 	'use strict';
 
+	// Turns 'path/to/foo.html' to 'foo'
+
 	return function getName ( path ) {
 		var pathParts, filename, lastIndex;
 

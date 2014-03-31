@@ -1,9 +1,7 @@
 define([
-	'utils/getName',
-	'utils/extractFragment'
+	'utils/getName'
 ], function (
-	getName,
-	extractFragment
+	getName
 ) {
 
 	'use strict';
