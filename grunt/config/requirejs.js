@@ -1,14 +1,24 @@
 module.exports = {
 	compile: {
 		options: {
-			out: 'tmp/ractive-component-utils.js',
+			out: 'tmp/rcu.js',
 			baseUrl: 'src/',
-			name: 'ractive-component-utils',
+			name: 'rcu',
 			optimize: 'none',
 			logLevel: 2,
+			paths: {
+				'ractive': 'empty:'
+			},
 			onBuildWrite: function( name, path, contents ) {
 				return require( 'amdclean' ).clean({
-					code: contents
+					code: contents,
+					prefixTransform: function ( name ) {
+						if ( name === 'ractive' ) {
+							return 'Ractive';
+						}
+
+						return name;
+					}
 				}) + '\n';
 			}
 		}
