@@ -1,0 +1,10 @@
+{
+  "name": "ractive-component-utils",
+  "version": "0.1.0",
+  "description": "Utilities for implementing Ractive.js component loaders",
+  "devDependencies": {
+    "grunt": "~0.4.4",
+    "grunt-contrib-requirejs": "~0.4.3",
+    "amdclean": "~1.5.0"
+  }
+}
