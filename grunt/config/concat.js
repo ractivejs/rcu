@@ -16,7 +16,7 @@ module.exports = {
 			expand: true,
 			cwd: 'tmp/',
 			src: '*.js',
-			dest: 'build/'
+			dest: ''
 		}],
 		options: {
 			process: true,

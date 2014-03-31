@@ -4,6 +4,7 @@ module.exports = function ( grunt ) {
 
 	grunt.registerTask( 'default', [
 		'build',
-		'test'
+		'test',
+		'concat:banner'
 	]);
 };

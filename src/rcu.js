@@ -1,9 +1,13 @@
 define([
 	'parse',
-	'make'
+	'make',
+	'resolve',
+	'getName'
 ], function (
 	parse,
-	make
+	make,
+	resolve,
+	getName
 ) {
 
 	'use strict';
@@ -14,7 +18,9 @@ define([
 		},
 
 		parse: parse,
-		make: make
+		make: make,
+		resolve: resolve,
+		getName: getName
 	};
 
 });

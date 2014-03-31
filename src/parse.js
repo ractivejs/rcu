@@ -1,5 +1,5 @@
 define([
-	'utils/getName'
+	'getName'
 ], function (
 	getName
 ) {

@@ -1,8 +1,8 @@
 define([
-	'utils/resolvePath',
+	'resolve',
 	'parse'
 ], function (
-	resolvePath,
+	resolve,
 	parse
 ) {
 
@@ -113,7 +113,7 @@ define([
 					var name, href;
 
 					name = toImport.name;
-					href = resolvePath( baseUrl, toImport.href );
+					href = resolve( baseUrl, toImport.href );
 
 					loadImport( href, function ( Component ) {
 						imports[ name ] = Component;
@@ -130,7 +130,7 @@ define([
 				modules = {};
 
 				definition.modules.forEach( function ( name ) {
-					var path = resolvePath( baseUrl, name );
+					var path = resolve( baseUrl, name );
 
 					loadModule( path, function ( Component ) {
 						modules[ name ] = Component;
