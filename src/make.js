@@ -110,12 +110,12 @@ define([
 				imports = {};
 
 				definition.imports.forEach( function ( toImport ) {
-					var name, href;
+					var name, path;
 
 					name = toImport.name;
-					href = resolve( baseUrl, toImport.href );
+					path = resolve( baseUrl, toImport.href );
 
-					loadImport( href, function ( Component ) {
+					loadImport( name, path, function ( Component ) {
 						imports[ name ] = Component;
 						onloaded();
 					});
@@ -132,7 +132,7 @@ define([
 				definition.modules.forEach( function ( name ) {
 					var path = resolve( baseUrl, name );
 
-					loadModule( path, function ( Component ) {
+					loadModule( name, path, function ( Component ) {
 						modules[ name ] = Component;
 						onloaded();
 					});
