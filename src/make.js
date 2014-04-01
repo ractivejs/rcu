@@ -8,7 +8,7 @@ define([
 
 	'use strict';
 
-	return function makeComponent ( source, options, callback ) {
+	return function makeComponent ( source, config, callback ) {
 		var definition,
 			baseUrl,
 			make,
@@ -22,13 +22,13 @@ define([
 			errorMessage,
 			ready;
 
-		options = options || {};
+		config = config || {};
 
-		// Implementation-specific options
-		baseUrl    = options.baseUrl || '';
-		loadImport = options.loadImport;
-		loadModule = options.loadModule;
-		onerror    = options.onerror;
+		// Implementation-specific config
+		baseUrl    = config.baseUrl || '';
+		loadImport = config.loadImport;
+		loadModule = config.loadModule;
+		onerror    = config.onerror;
 
 		definition = parse( source );
 
@@ -55,7 +55,7 @@ define([
 				}
 
 				try {
-					fn( component, require, Ractive );
+					fn( component = {}, config.require, Ractive );
 				} catch ( err ) {
 					errorMessage = 'Error executing component script: ' + err.message || err;
 
@@ -84,12 +84,12 @@ define([
 		// If the definition includes sub-components e.g.
 		//     <link rel='ractive' href='foo.html'>
 		//
-		// ...or module dependencies e.g.
-		//     foo = require('foo')
+		// ...then we need to load them first, using the loadImport method
+		// specified by the implementation.
 		//
-		// ...then we need to load them first, assuming loaders were provided.
-		// Either way the callback will be called asychronously
-		remainingDependencies = ( definition.imports.length + definition.modules.length );
+		// In some environments (e.g. AMD) the same goes for modules, which
+		// most be loaded before the script can execute
+		remainingDependencies = ( definition.imports.length + ( loadModule ? definition.modules.length : 0 ) );
 
 		if ( remainingDependencies ) {
 			onloaded = function () {
@@ -122,15 +122,11 @@ define([
 				});
 			}
 
-			if ( definition.modules.length ) {
-				if ( !loadModule ) {
-					throw new Error( 'Component definition includes modules (e.g. `require("' + definition.imports[0].href + '")`) but no loadModule method was passed to rcu.make()' );
-				}
-
+			if ( loadModule && definition.modules.length ) {
 				modules = {};
 
 				definition.modules.forEach( function ( name ) {
-					var path = resolve( baseUrl, name );
+					var path = resolve( name, baseUrl );
 
 					loadModule( name, path, function ( Component ) {
 						modules[ name ] = Component;
