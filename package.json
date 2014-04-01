@@ -1,5 +1,5 @@
 {
-  "name": "ractive-component-utils",
+  "name": "rcu",
   "version": "0.1.0",
   "description": "Utilities for implementing Ractive.js component loaders",
   "devDependencies": {
