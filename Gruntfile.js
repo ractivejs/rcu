@@ -9,9 +9,16 @@ module.exports = function ( grunt ) {
 
     config = {
         pkg: grunt.file.readJSON( 'package.json' ),
+        banner: grunt.file.read( 'wrapper/banner.js' ),
+
         intro: grunt.file.read( 'wrapper/intro.js' ),
         outro: grunt.file.read( 'wrapper/outro.js' ),
-        banner: grunt.file.read( 'wrapper/banner.js' )
+
+        intro_amd: grunt.file.read( 'wrapper/intro_amd.js' ),
+        outro_amd: grunt.file.read( 'wrapper/outro_amd.js' ),
+
+        intro_node: grunt.file.read( 'wrapper/intro_node.js' ),
+        outro_node: grunt.file.read( 'wrapper/outro_node.js' )
     };
 
     // Read config files from the `grunt/config/` folder

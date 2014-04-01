@@ -1,4 +1,4 @@
-(function ( global ) {
+define( function () {
 
 	'use strict';
 

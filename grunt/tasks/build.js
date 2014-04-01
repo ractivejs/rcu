@@ -6,7 +6,9 @@ module.exports = function ( grunt ) {
 		'jshint',
 		'clean:tmp',
 		'requirejs',
-		'concat:closure',
+		'concat:amd',
+		'concat:node',
+		'concat:umd',
 		'jsbeautifier'
 	]);
 
