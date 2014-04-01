@@ -1,9 +1,10 @@
-Ractive.js component spec
-=========================
+rcu - Ractive.js component utils
+================================
 
-This repository will eventually provide a complete specification for Ractive.js components, along with the canonical set of utilities needed to implement a component loader.
+These utilities are designed to make it easy to implement Ractive.js component loaders in different environments. See [ractivejs/component-spec](https://github.com/ractivejs/component-spec) for the up-to-date spec (for both users and implementers).
 
-In the meantime, refer to these implementations:
+Implementations
+---------------
 
 * [ractive-load](https://github.com/ractivejs/ractive-load) - standalone plugin
 * [requirejs-ractive](https://github.com/ractivejs/requirejs-ractive) - for use with [Require.js](http://requirejs.org/)
