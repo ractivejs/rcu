@@ -1,8 +1,6 @@
 define([
-	'resolve',
 	'parse'
 ], function (
-	resolve,
 	parse
 ) {
 
@@ -10,7 +8,7 @@ define([
 
 	return function makeComponent ( source, config, callback ) {
 		var definition,
-			baseUrl,
+			url,
 			make,
 			loadImport,
 			imports,
@@ -25,7 +23,7 @@ define([
 		config = config || {};
 
 		// Implementation-specific config
-		baseUrl    = config.baseUrl || '';
+		url        = config.url || '';
 		loadImport = config.loadImport;
 		loadModule = config.loadModule;
 		onerror    = config.onerror;
@@ -110,13 +108,8 @@ define([
 				imports = {};
 
 				definition.imports.forEach( function ( toImport ) {
-					var name, path;
-
-					name = toImport.name;
-					path = resolve( baseUrl, toImport.href );
-
-					loadImport( name, path, function ( Component ) {
-						imports[ name ] = Component;
+					loadImport( toImport.name, toImport.href, url, function ( Component ) {
+						imports[ toImport.name ] = Component;
 						onloaded();
 					});
 				});
@@ -126,9 +119,7 @@ define([
 				modules = {};
 
 				definition.modules.forEach( function ( name ) {
-					var path = resolve( name, baseUrl );
-
-					loadModule( name, path, function ( Component ) {
+					loadModule( name, name, url, function ( Component ) {
 						modules[ name ] = Component;
 						onloaded();
 					});
