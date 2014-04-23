@@ -23,15 +23,15 @@ export default function parse ( source ) {
 		item = template[i];
 
 		if ( item && item.t === 7 ) {
-			if ( item.e === 'link' && ( item.a && item.a.rel === 'ractive' ) ) {
+			if ( item.e === 'link' && ( item.a && item.a.rel[0] === 'ractive' ) ) {
 				links.push( template.splice( i, 1 )[0] );
 			}
 
-			if ( item.e === 'script' && ( !item.a || !item.a.type || item.a.type === 'text/javascript' ) ) {
+			if ( item.e === 'script' && ( !item.a || !item.a.type || item.a.type[0] === 'text/javascript' ) ) {
 				scripts.push( template.splice( i, 1 )[0] );
 			}
 
-			if ( item.e === 'style' && ( !item.a || !item.a.type || item.a.type === 'text/css' ) ) {
+			if ( item.e === 'style' && ( !item.a || !item.a.type || item.a.type[0] === 'text/css' ) ) {
 				styles.push( template.splice( i, 1 )[0] );
 			}
 		}
@@ -41,8 +41,8 @@ export default function parse ( source ) {
 	imports = links.map( function ( link ) {
 		var href, name;
 
-		href = link.a.href && link.a.href;
-		name = ( link.a.name && link.a.name ) || getName( href );
+		href = link.a.href && link.a.href[0];
+		name = ( link.a.name && link.a.name[0] ) || getName( href );
 
 		if ( typeof name !== 'string' ) {
 			throw new Error( 'Error parsing link tag' );
