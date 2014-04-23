@@ -1,26 +1,15 @@
-define([
-	'parse',
-	'make',
-	'resolve',
-	'getName'
-], function (
-	parse,
-	make,
-	resolve,
-	getName
-) {
+import parse from 'parse';
+import make from 'make';
+import resolve from 'resolve';
+import getName from 'getName';
 
-	'use strict';
+export default {
+	init: function ( copy ) {
+		Ractive = copy;
+	},
 
-	return {
-		init: function ( copy ) {
-			Ractive = copy;
-		},
-
-		parse: parse,
-		make: make,
-		resolve: resolve,
-		getName: getName
-	};
-
-});
+	parse: parse,
+	make: make,
+	resolve: resolve,
+	getName: getName
+};

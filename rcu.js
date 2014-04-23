@@ -1,33 +1,12 @@
 /*
 
-	rcu (Ractive component utils) - 0.1.1 - 2014-04-18
+	rcu (Ractive component utils) - 0.1.1 - 2014-04-23
 	==============================================================
 
 	Copyright 2014 Rich Harris and contributors
-
-	Permission is hereby granted, free of charge, to any person
-	obtaining a copy of this software and associated documentation
-	files (the "Software"), to deal in the Software without
-	restriction, including without limitation the rights to use,
-	copy, modify, merge, publish, distribute, sublicense, and/or sell
-	copies of the Software, and to permit persons to whom the
-	Software is furnished to do so, subject to the following
-	conditions:
-
-	The above copyright notice and this permission notice shall be
-	included in all copies or substantial portions of the Software.
-
-	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-	EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
-	OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-	NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
-	HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
-	WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
-	FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
-	OTHER DEALINGS IN THE SOFTWARE.
+	Released under the MIT license.
 
 */
-
 ( function( global ) {
 
 	'use strict';
@@ -48,7 +27,7 @@
 	var parse = function( getName ) {
 
 		var requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
-		return function parseComponentDefinition( source ) {
+		return function parse( source ) {
 			var template, links, imports, scripts, script, styles, match, modules, i, item;
 			template = Ractive.parse( source, {
 				noStringify: true,
@@ -65,13 +44,13 @@
 			while ( i-- ) {
 				item = template[ i ];
 				if ( item && item.t === 7 ) {
-					if ( item.e === 'link' && ( item.a && item.a.rel[ 0 ] === 'ractive' ) ) {
+					if ( item.e === 'link' && ( item.a && item.a.rel === 'ractive' ) ) {
 						links.push( template.splice( i, 1 )[ 0 ] );
 					}
-					if ( item.e === 'script' && ( !item.a || !item.a.type || item.a.type[ 0 ] === 'text/javascript' ) ) {
+					if ( item.e === 'script' && ( !item.a || !item.a.type || item.a.type === 'text/javascript' ) ) {
 						scripts.push( template.splice( i, 1 )[ 0 ] );
 					}
-					if ( item.e === 'style' && ( !item.a || !item.a.type || item.a.type[ 0 ] === 'text/css' ) ) {
+					if ( item.e === 'style' && ( !item.a || !item.a.type || item.a.type === 'text/css' ) ) {
 						styles.push( template.splice( i, 1 )[ 0 ] );
 					}
 				}
@@ -79,8 +58,8 @@
 			// Extract names from links
 			imports = links.map( function( link ) {
 				var href, name;
-				href = link.a.href && link.a.href[ 0 ];
-				name = link.a.name && link.a.name[ 0 ] || getName( href );
+				href = link.a.href && link.a.href;
+				name = link.a.name && link.a.name || getName( href );
 				if ( typeof name !== 'string' ) {
 					throw new Error( 'Error parsing link tag' );
 				}
@@ -110,8 +89,8 @@
 
 	var make = function( parse ) {
 
-		return function makeComponent( source, config, callback ) {
-			var definition, url, make, loadImport, imports, loadModule, modules, remainingDependencies, onloaded, onerror, errorMessage, ready;
+		return function make( source, config, callback ) {
+			var definition, url, createComponent, loadImport, imports, loadModule, modules, remainingDependencies, onloaded, onerror, errorMessage, ready;
 			config = config || {};
 			// Implementation-specific config
 			url = config.url || '';
@@ -119,7 +98,7 @@
 			loadModule = config.loadModule;
 			onerror = config.onerror;
 			definition = parse( source );
-			make = function() {
+			createComponent = function() {
 				var options, fn, component, exports, Component, prop;
 				options = {
 					template: definition.template,
@@ -172,9 +151,9 @@
 				onloaded = function() {
 					if ( !--remainingDependencies ) {
 						if ( ready ) {
-							make();
+							createComponent();
 						} else {
-							setTimeout( make, 0 );
+							setTimeout( createComponent, 0 );
 						}
 					}
 				};
@@ -200,7 +179,7 @@
 					} );
 				}
 			} else {
-				setTimeout( make, 0 );
+				setTimeout( createComponent, 0 );
 			}
 			ready = true;
 		};

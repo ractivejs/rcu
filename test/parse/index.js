@@ -41,6 +41,8 @@ function test () {
 
 			process.exit( 'Failed test "' + t + '"' );
 		}
+
+		console.log( 'passed "' + t + '"' );
 	}
 }
 

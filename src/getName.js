@@ -1,21 +1,13 @@
-define( function () {
+export default function getName ( path ) {
+	var pathParts, filename, lastIndex;
 
-	'use strict';
+	pathParts = path.split( '/' );
+	filename = pathParts.pop();
 
-	// Turns 'path/to/foo.html' to 'foo'
+	lastIndex = filename.lastIndexOf( '.' );
+	if ( lastIndex !== -1 ) {
+		filename = filename.substr( 0, lastIndex );
+	}
 
-	return function getName ( path ) {
-		var pathParts, filename, lastIndex;
-
-		pathParts = path.split( '/' );
-		filename = pathParts.pop();
-
-		lastIndex = filename.lastIndexOf( '.' );
-		if ( lastIndex !== -1 ) {
-			filename = filename.substr( 0, lastIndex );
-		}
-
-		return filename;
-	};
-
-});
+	return filename;
+}

@@ -1,13 +1,14 @@
 module.exports = {
 	files: [ 'src/**/*.js' ],
 	options: {
+		esnext: true,
 		boss: true,
 		eqnull: true,
 		evil: true,
 		laxbreak: true,
 		proto: true,
 		smarttabs: true,
-		strict: true,
+		strict: false,
 		undef: true,
 		unused: true,
 		'-W018': true,
