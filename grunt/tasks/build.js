@@ -10,7 +10,8 @@ module.exports = function ( grunt ) {
 		'concat:amd',
 		'concat:node',
 		'concat:umd',
-		'jsbeautifier'
+		'jsbeautifier',
+		'concat:es6' // gets treated differently; beautifier mucks it up
 	]);
 
 };

@@ -18,7 +18,10 @@ module.exports = function ( grunt ) {
 		outro_amd: grunt.file.read( 'wrapper/outro_amd.js' ),
 
 		intro_node: grunt.file.read( 'wrapper/intro_node.js' ),
-		outro_node: grunt.file.read( 'wrapper/outro_node.js' )
+		outro_node: grunt.file.read( 'wrapper/outro_node.js' ),
+
+		intro_es6: grunt.file.read( 'wrapper/intro_es6.js' ),
+		outro_es6: grunt.file.read( 'wrapper/outro_es6.js' )
 	};
 
 	// Read config files from the `grunt/config/` folder

@@ -15,9 +15,18 @@ module.exports = {
 			footer: '<%= outro_node %>'
 		}
 	},
+	es6: {
+		src: 'tmp/rcu.js',
+		dest: 'rcu.es6.js',
+		options: {
+			process: true,
+			banner: '<%= banner %>',
+			footer: '\nexport default rcu;'
+		}
+	},
 	umd: {
 		src: 'tmp/rcu.js',
-		dest: 'tmp/rcu.js',
+		dest: 'tmp/rcu.umd.js',
 		options: {
 			banner: '<%= intro %>',
 			footer: '<%= outro %>'
@@ -27,7 +36,13 @@ module.exports = {
 		files: [{
 			expand: true,
 			cwd: 'tmp/',
-			src: '*.js',
+			src: ['rcu.*.js'],
+			rename: function ( dest, name ) {
+				if ( name === 'rcu.umd.js' ) {
+					return 'rcu.js';
+				}
+				return name;
+			},
 			dest: ''
 		}],
 		options: {

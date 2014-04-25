@@ -12,7 +12,7 @@ Implementations
 
 
 
-Usage
------
+Usage (for implementers)
+------------------------
 
-Coming soon...
+Include the version that applies to your situation - there's a `rcu.node.js` file for node.js implementations, `rcu.amd.js` for AMD-based implementations, and `rcu.js` for everything else.

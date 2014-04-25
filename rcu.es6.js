@@ -214,4 +214,4 @@ var rcu = function( parse, make, resolve, getName ) {
 	};
 }( parse, make, resolve, getName );
 
-module.exports = rcu;
+export default rcu;
