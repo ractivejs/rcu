@@ -1,6 +1,6 @@
 /*
 
-	rcu (Ractive component utils) - 0.1.1 - 2014-04-23
+	rcu (Ractive component utils) - 0.1.1 - 2014-04-29
 	==============================================================
 
 	Copyright 2014 Rich Harris and contributors
@@ -88,10 +88,44 @@
 		}
 	}( getName );
 
-	var make = function( parse ) {
+	var execute = function() {
 
-		return function make( source, config, callback ) {
-			var definition, url, createComponent, loadImport, imports, loadModule, modules, remainingDependencies, onloaded, onerror, errorMessage, ready;
+		var head;
+		if ( typeof document !== 'undefined' ) {
+			head = document.getElementsByTagName( 'head' )[ 0 ];
+		}
+		return function execute( script, options ) {
+			var oldOnerror, errored, scriptElement, dataURI;
+			options = options || {};
+			if ( options.sourceURL ) {
+				script += '\n//# sourceURL=' + options.sourceURL;
+			}
+			dataURI = 'data:text/javascript;charset=utf-8,' + encodeURIComponent( script );
+			scriptElement = document.createElement( 'script' );
+			scriptElement.src = dataURI;
+			scriptElement.onload = function() {
+				head.removeChild( scriptElement );
+				window.onerror = oldOnerror;
+				if ( errored ) {
+					if ( options.errback ) {
+						options.errback();
+					}
+				} else if ( options.onload ) {
+					options.onload();
+				}
+			};
+			oldOnerror = window.onerror;
+			window.onerror = function() {
+				errored = true;
+			};
+			head.appendChild( scriptElement );
+		};
+	}();
+
+	var make = function( parse, execute ) {
+
+		return function make( source, config, callback, errback ) {
+			var definition, url, createComponent, loadImport, imports, loadModule, modules, remainingDependencies, onloaded, onerror, ready;
 			config = config || {};
 			// Implementation-specific config
 			url = config.url || '';
@@ -100,44 +134,50 @@
 			onerror = config.onerror;
 			definition = parse( source );
 			createComponent = function() {
-				var options, fn, component, exports, Component, prop;
+				var noConflict, options, Component;
 				options = {
 					template: definition.template,
 					css: definition.css,
 					components: imports
 				};
 				if ( definition.script ) {
-					try {
-						fn = new Function( 'component', 'require', 'Ractive', definition.script + '\n//# sourceURL=' + url.substr( url.lastIndexOf( '/' ) + 1 ) + '.js' );
-					} catch ( err ) {
-						errorMessage = 'Error creating function from component script: ' + err.message || err;
-						if ( onerror ) {
-							onerror( errorMessage );
-						} else {
-							throw new Error( errorMessage );
-						}
-					}
-					try {
-						fn( component = {}, config.require, Ractive );
-					} catch ( err ) {
-						errorMessage = 'Error executing component script: ' + err.message || err;
-						if ( onerror ) {
-							onerror( errorMessage );
-						} else {
-							throw new Error( errorMessage );
-						}
-					}
-					exports = component.exports;
-					if ( typeof exports === 'object' ) {
-						for ( prop in exports ) {
-							if ( exports.hasOwnProperty( prop ) ) {
-								options[ prop ] = exports[ prop ];
+					noConflict = {
+						component: window.component,
+						require: window.require,
+						Ractive: window.Ractive
+					};
+					window.component = {};
+					window.require = config.require;
+					window.Ractive = Ractive;
+					execute( definition.script, {
+						sourceURL: url.substr( url.lastIndexOf( '/' ) + 1 ) + '.js',
+						onload: function() {
+							var exports = window.component.exports,
+								prop;
+							window.component = noConflict.component;
+							window.require = noConflict.require;
+							window.Ractive = noConflict.Ractive;
+							if ( typeof exports === 'object' ) {
+								for ( prop in exports ) {
+									if ( exports.hasOwnProperty( prop ) ) {
+										options[ prop ] = exports[ prop ];
+									}
+								}
 							}
+							Component = Ractive.extend( options );
+							callback( Component );
+						},
+						onerror: function() {
+							window.component = noConflict.component;
+							window.require = noConflict.require;
+							window.Ractive = noConflict.Ractive;
+							errback( 'Error creating component' );
 						}
-					}
+					} );
+				} else {
+					Component = Ractive.extend( options );
+					callback( Component );
 				}
-				Component = Ractive.extend( options );
-				callback( Component );
 			};
 			// If the definition includes sub-components e.g.
 			//     <link rel='ractive' href='foo.html'>
@@ -184,7 +224,7 @@
 			}
 			ready = true;
 		};
-	}( parse );
+	}( parse, execute );
 
 	var resolve = function resolvePath( relativePath, base ) {
 		var pathParts, relativePathParts, part;
@@ -207,7 +247,7 @@
 		return pathParts.join( '/' );
 	};
 
-	var rcu = function( parse, make, resolve, getName ) {
+	var rcu = function( parse, make, execute, resolve, getName ) {
 
 		return {
 			init: function( copy ) {
@@ -215,10 +255,11 @@
 			},
 			parse: parse,
 			make: make,
+			execute: execute,
 			resolve: resolve,
 			getName: getName
 		};
-	}( parse, make, resolve, getName );
+	}( parse, make, execute, resolve, getName );
 
 
 	// export as Common JS module...

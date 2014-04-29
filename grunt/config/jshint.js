@@ -19,7 +19,9 @@ module.exports = {
 			require: true,
 			setInterval: true,
 			setTimeout: true,
-			Ractive: true
+			Ractive: true,
+			document: true,
+			window: true
 		}
 	}
 };
