@@ -1,5 +1,5 @@
 import parse from 'parse';
-import execute from 'execute';
+import createFunction from 'createFunction';
 
 export default function make ( source, config, callback, errback ) {
 	var definition,
@@ -25,7 +25,7 @@ export default function make ( source, config, callback, errback ) {
 	definition = parse( source );
 
 	createComponent = function () {
-		var noConflict, options, Component;
+		var options, Component;
 
 		options = {
 			template: definition.template,
@@ -34,24 +34,13 @@ export default function make ( source, config, callback, errback ) {
 		};
 
 		if ( definition.script ) {
-			noConflict = {
-				component: window.component,
-				require: window.require,
-				Ractive: window.Ractive
-			};
-
-			window.component = {};
-			window.require = config.require;
-			window.Ractive = Ractive;
-
-			execute( definition.script, {
+			createFunction( definition.script, {
 				sourceURL: url.substr( url.lastIndexOf( '/' ) + 1 ) + '.js',
-				onload: function () {
-					var exports = window.component.exports, prop;
+				onload: function ( factory ) {
+					var component = {}, exports, prop;
 
-					window.component = noConflict.component;
-					window.require = noConflict.require;
-					window.Ractive = noConflict.Ractive;
+					factory( component, config.require, Ractive );
+					exports = component.exports;
 
 					if ( typeof exports === 'object' ) {
 						for ( prop in exports ) {
@@ -65,10 +54,6 @@ export default function make ( source, config, callback, errback ) {
 					callback( Component );
 				},
 				onerror: function () {
-					window.component = noConflict.component;
-					window.require = noConflict.require;
-					window.Ractive = noConflict.Ractive;
-
 					errback( 'Error creating component' );
 				}
 			});

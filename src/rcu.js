@@ -1,6 +1,6 @@
 import parse from 'parse';
 import make from 'make';
-import execute from 'execute';
+import createFunction from 'createFunction';
 import resolve from 'resolve';
 import getName from 'getName';
 
@@ -11,7 +11,7 @@ export default {
 
 	parse: parse,
 	make: make,
-	execute: execute,
+	createFunction: createFunction,
 	resolve: resolve,
 	getName: getName
 };

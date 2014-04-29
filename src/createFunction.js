@@ -1,13 +1,22 @@
-var head;
+var head, uid = 0;
 
 if ( typeof document !== 'undefined' ) {
 	head = document.getElementsByTagName( 'head' )[0];
 }
 
-export default function execute ( script, options ) {
-	var oldOnerror, errored, scriptElement, dataURI;
+export default function createFunction ( code, options ) {
+	var oldOnerror, errored, scriptElement, dataURI, functionName, script = '';
 
 	options = options || {};
+
+	// generate a unique function name
+	functionName = 'rvc_' + uid++ + '_' + Math.floor( Math.random() * 100000 );
+
+	if ( options.message ) {
+		script += '/*\n' + options.message + '*/\n\n';
+	}
+
+	script += functionName + ' = function ( component, require, Ractive ) {\n\n' + code + '\n\n};';
 
 	if ( options.sourceURL ) {
 		script += '\n//# sourceURL=' + options.sourceURL;
@@ -24,12 +33,13 @@ export default function execute ( script, options ) {
 
 		if ( errored ) {
 			if ( options.errback ) {
-				options.errback();
+				options.errback( 'Syntax error in component script' );
 			}
 		}
 
 		else if ( options.onload ) {
-			options.onload();
+			options.onload( window[ functionName ] );
+			delete window[ functionName ];
 		}
 	};
 

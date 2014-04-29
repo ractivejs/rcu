@@ -88,15 +88,21 @@
 		}
 	}( getName );
 
-	var execute = function() {
+	var createFunction = function() {
 
-		var head;
+		var head, uid = 0;
 		if ( typeof document !== 'undefined' ) {
 			head = document.getElementsByTagName( 'head' )[ 0 ];
 		}
-		return function execute( script, options ) {
-			var oldOnerror, errored, scriptElement, dataURI;
+		return function createFunction( code, options ) {
+			var oldOnerror, errored, scriptElement, dataURI, functionName, script = '';
 			options = options || {};
+			// generate a unique function name
+			functionName = 'rvc_' + uid+++'_' + Math.floor( Math.random() * 100000 );
+			if ( options.message ) {
+				script += '/*\n' + options.message + '*/\n\n';
+			}
+			script += functionName + ' = function ( component, require, Ractive ) {\n\n' + code + '\n\n};';
 			if ( options.sourceURL ) {
 				script += '\n//# sourceURL=' + options.sourceURL;
 			}
@@ -108,10 +114,11 @@
 				window.onerror = oldOnerror;
 				if ( errored ) {
 					if ( options.errback ) {
-						options.errback();
+						options.errback( 'Syntax error in component script' );
 					}
 				} else if ( options.onload ) {
-					options.onload();
+					options.onload( window[ functionName ] );
+					delete window[ functionName ];
 				}
 			};
 			oldOnerror = window.onerror;
@@ -122,7 +129,7 @@
 		};
 	}();
 
-	var make = function( parse, execute ) {
+	var make = function( parse, createFunction ) {
 
 		return function make( source, config, callback, errback ) {
 			var definition, url, createComponent, loadImport, imports, loadModule, modules, remainingDependencies, onloaded, onerror, ready;
@@ -134,29 +141,19 @@
 			onerror = config.onerror;
 			definition = parse( source );
 			createComponent = function() {
-				var noConflict, options, Component;
+				var options, Component;
 				options = {
 					template: definition.template,
 					css: definition.css,
 					components: imports
 				};
 				if ( definition.script ) {
-					noConflict = {
-						component: window.component,
-						require: window.require,
-						Ractive: window.Ractive
-					};
-					window.component = {};
-					window.require = config.require;
-					window.Ractive = Ractive;
-					execute( definition.script, {
+					createFunction( definition.script, {
 						sourceURL: url.substr( url.lastIndexOf( '/' ) + 1 ) + '.js',
-						onload: function() {
-							var exports = window.component.exports,
-								prop;
-							window.component = noConflict.component;
-							window.require = noConflict.require;
-							window.Ractive = noConflict.Ractive;
+						onload: function( factory ) {
+							var component = {}, exports, prop;
+							factory( component, config.require, Ractive );
+							exports = component.exports;
 							if ( typeof exports === 'object' ) {
 								for ( prop in exports ) {
 									if ( exports.hasOwnProperty( prop ) ) {
@@ -168,9 +165,6 @@
 							callback( Component );
 						},
 						onerror: function() {
-							window.component = noConflict.component;
-							window.require = noConflict.require;
-							window.Ractive = noConflict.Ractive;
 							errback( 'Error creating component' );
 						}
 					} );
@@ -224,7 +218,7 @@
 			}
 			ready = true;
 		};
-	}( parse, execute );
+	}( parse, createFunction );
 
 	var resolve = function resolvePath( relativePath, base ) {
 		var pathParts, relativePathParts, part;
@@ -247,7 +241,7 @@
 		return pathParts.join( '/' );
 	};
 
-	var rcu = function( parse, make, execute, resolve, getName ) {
+	var rcu = function( parse, make, createFunction, resolve, getName ) {
 
 		return {
 			init: function( copy ) {
@@ -255,11 +249,11 @@
 			},
 			parse: parse,
 			make: make,
-			execute: execute,
+			createFunction: createFunction,
 			resolve: resolve,
 			getName: getName
 		};
-	}( parse, make, execute, resolve, getName );
+	}( parse, make, createFunction, resolve, getName );
 
 
 	// export as Common JS module...
