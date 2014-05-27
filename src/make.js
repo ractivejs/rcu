@@ -1,6 +1,7 @@
 import parse from 'parse';
+import createFunction from 'createFunction';
 
-export default function make ( source, config, callback ) {
+export default function make ( source, config, callback, errback ) {
 	var definition,
 		url,
 		createComponent,
@@ -11,7 +12,6 @@ export default function make ( source, config, callback ) {
 		remainingDependencies,
 		onloaded,
 		onerror,
-		errorMessage,
 		ready;
 
 	config = config || {};
@@ -25,7 +25,7 @@ export default function make ( source, config, callback ) {
 	definition = parse( source );
 
 	createComponent = function () {
-		var options, fn, component, exports, Component, prop;
+		var options, Component;
 
 		options = {
 			template: definition.template,
@@ -34,43 +34,33 @@ export default function make ( source, config, callback ) {
 		};
 
 		if ( definition.script ) {
-			try {
-				fn = new Function ( 'component', 'require', 'Ractive', definition.script + '\n//# sourceURL=' + url.substr( url.lastIndexOf( '/' ) + 1 ) + '.js' );
-			} catch ( err ) {
-				errorMessage = 'Error creating function from component script: ' + err.message || err;
+			createFunction( definition.script, {
+				sourceURL: url.substr( url.lastIndexOf( '/' ) + 1 ) + '.js',
+				onload: function ( factory ) {
+					var component = {}, exports, prop;
 
-				if ( onerror ) {
-					onerror( errorMessage );
-				} else {
-					throw new Error( errorMessage );
-				}
-			}
+					factory( component, config.require, Ractive );
+					exports = component.exports;
 
-			try {
-				fn( component = {}, config.require, Ractive );
-			} catch ( err ) {
-				errorMessage = 'Error executing component script: ' + err.message || err;
-
-				if ( onerror ) {
-					onerror( errorMessage );
-				} else {
-					throw new Error( errorMessage );
-				}
-			}
-
-			exports = component.exports;
-
-			if ( typeof exports === 'object' ) {
-				for ( prop in exports ) {
-					if ( exports.hasOwnProperty( prop ) ) {
-						options[ prop ] = exports[ prop ];
+					if ( typeof exports === 'object' ) {
+						for ( prop in exports ) {
+							if ( exports.hasOwnProperty( prop ) ) {
+								options[ prop ] = exports[ prop ];
+							}
+						}
 					}
-				}
-			}
-		}
 
-		Component = Ractive.extend( options );
-		callback( Component );
+					Component = Ractive.extend( options );
+					callback( Component );
+				},
+				onerror: function () {
+					errback( 'Error creating component' );
+				}
+			});
+		} else {
+			Component = Ractive.extend( options );
+			callback( Component );
+		}
 	};
 
 	// If the definition includes sub-components e.g.
