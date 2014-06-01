@@ -7,7 +7,7 @@ module.exports = {
 			optimize: 'none',
 			logLevel: 2,
 			paths: {
-				'ractive': 'empty:'
+				'eval2': '../node_modules/eval2/eval2.amd'
 			},
 			onBuildWrite: function( name, path, contents ) {
 				var depMap = {};
@@ -31,12 +31,7 @@ module.exports = {
 				.replace( /,?\s*__exports__/, '' );
 
 				return require( 'amdclean' ).clean({
-					code: contents,
-					prefixTransform: function ( name ) {
-						if ( name === 'ractive' ) {
-							return 'Ractive';
-						}
-					}
+					code: contents
 				}) + '\n';
 			}
 		}

@@ -1,5 +1,5 @@
 import parse from 'parse';
-import createFunction from 'createFunction';
+import eval2 from 'eval2';
 
 export default function make ( source, config, callback, errback ) {
 	var definition,
@@ -25,7 +25,7 @@ export default function make ( source, config, callback, errback ) {
 	definition = parse( source );
 
 	createComponent = function () {
-		var options, Component;
+		var options, Component, script, factory, component, exports, prop;
 
 		options = {
 			template: definition.template,
@@ -34,29 +34,29 @@ export default function make ( source, config, callback, errback ) {
 		};
 
 		if ( definition.script ) {
-			createFunction( definition.script, {
-				sourceURL: url.substr( url.lastIndexOf( '/' ) + 1 ) + '.js',
-				onload: function ( factory ) {
-					var component = {}, exports, prop;
+			try {
+				script = definition.script + '\n//# sourceURL=' + url.substr( url.lastIndexOf( '/' ) + 1 ) + '.js';
+				factory = new eval2.Function( 'component', 'require', 'Ractive', definition.script );
 
-					factory( component, config.require, Ractive );
-					exports = component.exports;
+				component = {};
+				factory( component, config.require, Ractive );
+				exports = component.exports;
 
-					if ( typeof exports === 'object' ) {
-						for ( prop in exports ) {
-							if ( exports.hasOwnProperty( prop ) ) {
-								options[ prop ] = exports[ prop ];
-							}
+				if ( typeof exports === 'object' ) {
+					for ( prop in exports ) {
+						if ( exports.hasOwnProperty( prop ) ) {
+							options[ prop ] = exports[ prop ];
 						}
 					}
-
-					Component = Ractive.extend( options );
-					callback( Component );
-				},
-				onerror: function () {
-					errback( 'Error creating component' );
 				}
-			});
+
+				Component = Ractive.extend( options );
+			} catch ( err ) {
+				errback( err );
+				return;
+			}
+
+			callback( Component );
 		} else {
 			Component = Ractive.extend( options );
 			callback( Component );
