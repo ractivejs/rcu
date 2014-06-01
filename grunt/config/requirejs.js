@@ -9,6 +9,7 @@ module.exports = {
 			paths: {
 				'eval2': '../node_modules/eval2/eval2.amd'
 			},
+			ignore: [ 'fs', 'path' ],
 			onBuildWrite: function( name, path, contents ) {
 				var depMap = {};
 
