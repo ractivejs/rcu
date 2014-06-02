@@ -1,8 +1,9 @@
 export default function resolvePath ( relativePath, base ) {
 	var pathParts, relativePathParts, part;
 
-	if ( relativePath.charAt( 0 ) !== '.' ) {
-		// not a relative path!
+	// If we've got an absolute path, or base is '', return
+	// relativePath
+	if ( !base || relativePath.charAt( 0 ) === '/' ) {
 		return relativePath;
 	}
 

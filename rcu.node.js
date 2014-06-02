@@ -1,6 +1,6 @@
 /*
 
-	rcu (Ractive component utils) - 0.1.5 - 2014-06-02
+	rcu (Ractive component utils) - 0.1.6 - 2014-06-02
 	==============================================================
 
 	Copyright 2014 Rich Harris and contributors
@@ -251,8 +251,9 @@ var make = function( parse, eval2 ) {
 
 var resolve = function resolvePath( relativePath, base ) {
 	var pathParts, relativePathParts, part;
-	if ( relativePath.charAt( 0 ) !== '.' ) {
-		// not a relative path!
+	// If we've got an absolute path, or base is '', return
+	// relativePath
+	if ( !base || relativePath.charAt( 0 ) === '/' ) {
 		return relativePath;
 	}
 	// 'foo/bar/baz.html' -> ['foo', 'bar', 'baz.html']
