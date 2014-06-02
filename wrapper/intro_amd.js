@@ -1,4 +1,4 @@
-define([ 'module' ], function ( module ) {
+define( function () {
 
 	'use strict';
 
