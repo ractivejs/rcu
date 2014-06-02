@@ -1,6 +1,6 @@
 {
   "name": "rcu",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "Utilities for implementing Ractive.js component loaders",
   "devDependencies": {
     "grunt": "~0.4.4",
