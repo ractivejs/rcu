@@ -1,6 +1,6 @@
 /*
 
-	rcu (Ractive component utils) - 0.1.6 - 2014-06-02
+	rcu (Ractive component utils) - 0.1.8 - 2014-06-02
 	==============================================================
 
 	Copyright 2014 Rich Harris and contributors
@@ -55,6 +55,15 @@
 						styles.push( template.splice( i, 1 )[ 0 ] );
 					}
 				}
+			}
+			// Clean up template - trim whitespace left over from the removal
+			// of <link>, <style> and <script> tags from start...
+			while ( /^\s*$/.test( template[ 0 ] ) ) {
+				template.shift();
+			}
+			// ...and end
+			while ( /^\s*$/.test( template[ template.length - 1 ] ) ) {
+				template.pop();
 			}
 			// Extract names from links
 			imports = links.map( function( link ) {
@@ -168,13 +177,12 @@
 	var make = function( parse, eval2 ) {
 
 		return function make( source, config, callback, errback ) {
-			var definition, url, createComponent, loadImport, imports, loadModule, modules, remainingDependencies, onloaded, onerror, ready;
+			var definition, url, createComponent, loadImport, imports, loadModule, modules, remainingDependencies, onloaded, ready;
 			config = config || {};
 			// Implementation-specific config
 			url = config.url || '';
 			loadImport = config.loadImport;
 			loadModule = config.loadModule;
-			onerror = config.onerror;
 			definition = parse( source );
 			createComponent = function() {
 				var options, Component, script, factory, component, exports, prop;
