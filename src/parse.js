@@ -37,6 +37,17 @@ export default function parse ( source ) {
 		}
 	}
 
+	// Clean up template - trim whitespace left over from the removal
+	// of <link>, <style> and <script> tags from start...
+	while ( /^\s*$/.test( template[0] ) ) {
+		template.shift();
+	}
+
+	// ...and end
+	while ( /^\s*$/.test( template[ template.length - 1 ] ) ) {
+		template.pop();
+	}
+
 	// Extract names from links
 	imports = links.map( function ( link ) {
 		var href, name;
