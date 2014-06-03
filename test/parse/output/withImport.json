@@ -1,0 +1,7 @@
+{
+	"template": [{"t":7,"e":"h1","f":["Hello world!"]}],
+	"script": "",
+	"css": "",
+	"imports": [{ "name": "foo", "href": "foo.html" }],
+	"modules": []
+}

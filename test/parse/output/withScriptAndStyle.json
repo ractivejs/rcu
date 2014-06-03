@@ -1,0 +1,7 @@
+{
+	"template": [{"t":7,"e":"h1","f":["Hello world!"]}],
+	"script": "\n\tcomponent.exports = {\n\t\tinit: function () {\n\t\t\tconsole.log( 'hello world' );\n\t\t}\n\t};\n",
+	"css": "\n\t.h1 {\n\t\tcolor: red;\n\t}\n",
+	"imports": [],
+	"modules": []
+}

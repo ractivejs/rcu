@@ -36,7 +36,10 @@ function test () {
 		expected = output[ t ];
 		actual = rcu.parse( input[ t ] );
 
-		console.log( 'Test "' + t + '"' );
+		console.log( '\nTest "' + t + '"' );
+		console.log( 'expected\n', expected );
+		console.log( 'actual\n', actual );
+
 		assert.deepEqual( actual, expected, 'Failed' );
 	}
 }
