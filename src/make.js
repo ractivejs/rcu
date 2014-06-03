@@ -11,7 +11,6 @@ export default function make ( source, config, callback, errback ) {
 		modules,
 		remainingDependencies,
 		onloaded,
-		onerror,
 		ready;
 
 	config = config || {};
@@ -20,7 +19,6 @@ export default function make ( source, config, callback, errback ) {
 	url        = config.url || '';
 	loadImport = config.loadImport;
 	loadModule = config.loadModule;
-	onerror    = config.onerror;
 
 	definition = parse( source );
 
