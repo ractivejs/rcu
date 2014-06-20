@@ -20,7 +20,7 @@ module.exports = {
 		dest: 'rcu.es6.js',
 		options: {
 			process: true,
-			banner: '<%= banner %>',
+			banner: '<%= banner %>var Ractive;\n\n',
 			footer: '\nexport default rcu;'
 		}
 	},

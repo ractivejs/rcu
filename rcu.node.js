@@ -1,12 +1,14 @@
 /*
 
-	rcu (Ractive component utils) - 0.1.8 - 2014-06-02
+	rcu (Ractive component utils) - 0.1.8 - 2014-06-20
 	==============================================================
 
 	Copyright 2014 Rich Harris and contributors
 	Released under the MIT license.
 
 */
+
+var Ractive;
 
 var getName = function getName( path ) {
 	var pathParts, filename, lastIndex;
