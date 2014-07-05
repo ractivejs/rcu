@@ -27,6 +27,7 @@ export default function make ( source, config, callback, errback ) {
 
 		options = {
 			template: definition.template,
+			partials: definition.partials,
 			css: definition.css,
 			components: imports
 		};
