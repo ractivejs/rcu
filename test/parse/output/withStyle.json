@@ -1,5 +1,5 @@
 {
-	"template": [{"t":7,"e":"h1","f":["Hello world!"]}],
+	"template": {"v":1,"t":[{"t":7,"e":"h1","f":["Hello world!"]}]},
 	"script": "",
 	"css": "\n\t.h1 {\n\t\tcolor: red;\n\t}\n",
 	"imports": [],
