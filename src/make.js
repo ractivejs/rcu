@@ -35,7 +35,7 @@ export default function make ( source, config, callback, errback ) {
 		if ( definition.script ) {
 			try {
 				script = definition.script + '\n//# sourceURL=' + url.substr( url.lastIndexOf( '/' ) + 1 ) + '.js';
-				factory = new eval2.Function( 'component', 'require', 'Ractive', definition.script );
+				factory = new eval2.Function( 'component', 'require', 'Ractive', script );
 
 				component = {};
 				factory( component, config.require, Ractive );
