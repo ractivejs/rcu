@@ -1,0 +1,7 @@
+{
+	"template": {"v":1,"t":[{"t":7,"e":"h1","f":["Hello world!"]}]},
+	"script": "\n\tcomponent.exports = {\n\t\tinit: function () {\n\t\t\tconsole.log( '{{uninterpolated}}' );\n\t\t}\n\t};\n",
+	"css": "",
+	"imports": [],
+	"modules": []
+}
