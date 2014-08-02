@@ -7,8 +7,7 @@ export default function parse ( source ) {
 
 	parsed = Ractive.parse( source, {
 		noStringify: true,
-		interpolateScripts: false,
-		interpolateStyles: false
+		interpolate: { script: false, style: false }
 	});
 
 	if ( parsed.v !== 1 ) {

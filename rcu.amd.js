@@ -1,6 +1,6 @@
 /*
 
-	rcu (Ractive component utils) - 0.2.0 - 2014-07-05
+	rcu (Ractive component utils) - 0.2.0 - 2014-08-02
 	==============================================================
 
 	Copyright 2014 Rich Harris and contributors
@@ -32,8 +32,10 @@ define( function() {
 			var parsed, template, links, imports, scripts, script, styles, match, modules, i, item;
 			parsed = Ractive.parse( source, {
 				noStringify: true,
-				interpolateScripts: false,
-				interpolateStyles: false
+				interpolate: {
+					script: false,
+					style: false
+				}
 			} );
 			if ( parsed.v !== 1 ) {
 				throw new Error( 'Mismatched template version! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app' );
