@@ -27,11 +27,13 @@ This function converts the `source` - the contents of an HTML component file - i
 
 
 ```js
+{
   imports: [{ href: 'foo.html', name: 'foo' }],
   template: {v:1,t:[ /* template goes here... */] },
   css: 'p { color: red; }',
   script: /* contents of the script tag go here */,
   modules: [ 'myLibrary' ]
+}
 ```
 
 
@@ -43,8 +45,8 @@ This function converts an HTML file into a constructor that inherits from `Racti
 * **config** - an object containing the following properties:
 	* **url** - the URL of the current file
 	* **require** - the function used inside component scripts to load external dependencies
-	* **loadImport** - a function to load child components. It takes four arguments - `name` (the name of the component), `path` (corresponds to a `<link>` tag's `href` attribute), `parentUrl` (the URL of the current file, i.e. the value of `config.url`), and `done`, which is a function that must be called with the resulting constructor.
-	* loadModule (optional) - a function to load external dependencies, if they need to be loaded asynchronously. Has the same signature as `loadImport`
+	* **loadImport** - a function to load child components. It takes four arguments - `name` (the name of the component), `path` (corresponds to a `<link>` tag's `href` attribute), `parentUrl` (the URL of the current file, i.e. the value of `config.url`), and `done`, which is a function that must be called with the resulting constructor. See [here](https://github.com/ractivejs/ractive-load/blob/master/src/load/single.js#L35-L40) for an example of its use.
+	* loadModule (optional) - a function to load external dependencies, if they need to be loaded asynchronously. Has the same signature as `loadImport`. See [here](https://github.com/ractivejs/rvc/blob/master/src/load.js#L18-L20) for an example
 * **callback** - the function that will be called, with the constructor as sole argument, once the component is ready
 * errback (optional) - a function to call if something goes wrong
 
