@@ -5,6 +5,10 @@ var requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
 export default function parse ( source ) {
 	var parsed, template, links, imports, scripts, script, styles, match, modules, i, item;
 
+	if ( !Ractive ) {
+		throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );
+	}
+
 	parsed = Ractive.parse( source, {
 		noStringify: true,
 		interpolate: { script: false, style: false }
