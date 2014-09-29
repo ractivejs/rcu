@@ -1,5 +1,6 @@
 import parse from 'parse';
 import eval2 from 'eval2';
+import vlq from 'vlq';
 
 export default function make ( source, config, callback, errback ) {
 	var definition,
@@ -23,7 +24,7 @@ export default function make ( source, config, callback, errback ) {
 	definition = parse( source );
 
 	createComponent = function () {
-		var options, Component, script, factory, component, exports, prop;
+		var options, Component, mappings, factory, component, exports, prop;
 
 		options = {
 			template: definition.template,
@@ -33,9 +34,29 @@ export default function make ( source, config, callback, errback ) {
 		};
 
 		if ( definition.script ) {
+			mappings = definition.script.split( '\n' ).map( function ( line, i ) {
+				var segment, lineNum, columnNum;
+
+				lineNum = ( i === 0 ? definition.scriptStart.line + i : 1 );
+				columnNum = ( i === 0 ? definition.scriptStart.column : i === 1 ? -definition.scriptStart.column : 0 );
+
+				// only one segment per line!
+				segment = [ 0, 0, lineNum, columnNum ];
+
+				return vlq.encode( segment );
+			}).join( ';' );
+
 			try {
-				script = definition.script + '\n//# sourceURL=' + url.substr( url.lastIndexOf( '/' ) + 1 ) + '.js';
-				factory = new eval2.Function( 'component', 'require', 'Ractive', script );
+				//script = definition.script + '\n//# sourceURL=' + url.substr( url.lastIndexOf( '/' ) + 1 ) + '.js';
+				factory = new eval2.Function( 'component', 'require', 'Ractive', definition.script, {
+					sourceMap: {
+						version: 3,
+						sources: [ url ],
+						sourcesContent: [ source ],
+						names: [],
+						mappings: mappings
+					}
+				});
 
 				component = {};
 				factory( component, config.require, Ractive );
