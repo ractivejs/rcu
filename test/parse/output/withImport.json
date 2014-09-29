@@ -1,5 +1,5 @@
 {
-	"template": {"v":1,"t":[{"t":7,"e":"h1","f":["Hello world!"]}]},
+	"template": {"v":1,"t":[{"t":7,"e":"h1","f":["Hello world!"],"p":[3,1,38]}]},
 	"script": "",
 	"css": "",
 	"imports": [{ "name": "foo", "href": "foo.html" }],

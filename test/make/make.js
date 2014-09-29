@@ -44,5 +44,5 @@ function run () {
 			test.callback( Component );
 			run();
 		});
-	})
+	});
 }

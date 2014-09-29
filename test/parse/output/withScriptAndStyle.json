@@ -1,6 +1,8 @@
 {
-	"template": {"v":1,"t":[{"t":7,"e":"h1","f":["Hello world!"]}]},
+	"template": {"v":1,"t":[{"t":7,"e":"h1","f":["Hello world!"],"p":[1,1,0]}]},
 	"script": "\n\tcomponent.exports = {\n\t\tinit: function () {\n\t\t\tconsole.log( 'hello world' );\n\t\t}\n\t};\n",
+	"scriptStart": { "line": 8, "column": 8, "char": 73 },
+	"scriptEnd": { "line": 14, "column": 0, "char": 160 },
 	"css": "\n\t.h1 {\n\t\tcolor: red;\n\t}\n",
 	"imports": [],
 	"modules": []

@@ -16,7 +16,7 @@ spelunk( path.join( __dirname, 'input' ), function ( err, result ) {
 	}
 
 	input = result;
-	if ( output ) test();
+	check();
 });
 
 spelunk( path.join( __dirname, 'output' ), function ( err, result ) {
@@ -25,8 +25,16 @@ spelunk( path.join( __dirname, 'output' ), function ( err, result ) {
 	}
 
 	output = result;
-	if ( input ) test();
+	check();
 });
+
+function check () {
+	if ( input && output ) {
+		// we're ready
+		test();
+		console.log( '\nall rcu.parse tests passed' );
+	}
+}
 
 
 function test () {
@@ -36,11 +44,17 @@ function test () {
 		expected = output[ t ];
 		actual = rcu.parse( input[ t ] );
 
-		console.log( '\nTest "' + t + '"' );
-		console.log( 'expected\n', expected );
-		console.log( 'actual\n', actual );
+		process.stdout.write( '.' );
 
-		assert.deepEqual( actual, expected, 'Failed' );
+		try {
+			assert.deepEqual( actual, expected, 'Failed' );
+		} catch ( err ) {
+			console.log( '\nFailed at test "' + t + '"' );
+			console.log( 'expected\n', JSON.stringify( expected, null, '  ' ) );
+			console.log( 'actual\n', JSON.stringify( actual, null, '  ' ) );
+
+			throw err;
+		}
 	}
 }
 
