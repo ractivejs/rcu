@@ -1,19 +1,23 @@
 {
   "name": "rcu",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Utilities for implementing Ractive.js component loaders",
   "devDependencies": {
+    "eval2": "^0.2.0",
+    "gobble": "^0.5.11",
+    "gobble-amdclean": "^0.1.0",
+    "gobble-browserify": "^0.1.0",
+    "gobble-esperanto": "^0.1.0",
+    "gobble-requirejs": "^0.2.0",
     "grunt": "~0.4.4",
-    "grunt-contrib-requirejs": "~0.4.3",
-    "amdclean": "~1.5.0",
-    "grunt-jsbeautifier": "~0.2.6",
+    "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-concat": "~0.4.0",
     "grunt-contrib-jshint": "~0.9.2",
-    "grunt-contrib-clean": "~0.5.0",
+    "grunt-gobble": "^0.1.1",
+    "grunt-jsbeautifier": "~0.2.6",
+    "ractive": "^0.6.0",
     "spelunk": "^0.1.1",
-    "ractive": "^0.5.1",
-    "grunt-es6-module-transpiler": "^0.6.0",
-    "eval2": "~0.1.6"
+    "vlq": "^0.1.0"
   },
   "main": "rcu.js"
 }

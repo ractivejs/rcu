@@ -1,9 +1,9 @@
 {
 	"name": "rcu",
 	"description": "Ractive.js component utils",
-	"version": "0.2.1",
+	"version": "0.3.0",
 	"devDependencies": {
-		"ractive": "~0.5.1",
+		"ractive": "^0.6.0",
 		"mocha": "~1.18.2"
 	}
 }
