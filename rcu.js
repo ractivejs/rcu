@@ -361,7 +361,6 @@
 						return vlq.encode( segment );
 					} ).join( ';' );
 					try {
-						//script = definition.script + '\n//# sourceURL=' + url.substr( url.lastIndexOf( '/' ) + 1 ) + '.js';
 						factory = new eval2.Function( 'component', 'require', 'Ractive', definition.script, {
 							sourceMap: {
 								version: 3,
