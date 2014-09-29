@@ -3,7 +3,7 @@ import getName from 'getName';
 var requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
 
 export default function parse ( source ) {
-	var parsed, template, links, imports, scripts, script, styles, match, modules, i, item;
+	var parsed, template, links, imports, scriptItem, script, styles, match, modules, i, item, result;
 
 	if ( !Ractive ) {
 		throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );
@@ -11,7 +11,8 @@ export default function parse ( source ) {
 
 	parsed = Ractive.parse( source, {
 		noStringify: true,
-		interpolate: { script: false, style: false }
+		interpolate: { script: false, style: false },
+		includeLinePositions: true
 	});
 
 	if ( parsed.v !== 1 ) {
@@ -19,7 +20,6 @@ export default function parse ( source ) {
 	}
 
 	links = [];
-	scripts = [];
 	styles = [];
 	modules = [];
 
@@ -36,7 +36,10 @@ export default function parse ( source ) {
 			}
 
 			if ( item.e === 'script' && ( !item.a || !item.a.type || item.a.type === 'text/javascript' ) ) {
-				scripts.push( template.splice( i, 1 )[0] );
+				if ( scriptItem ) {
+					throw new Error( 'You can only have one <script> tag per component file' );
+				}
+				scriptItem = template.splice( i, 1 )[0];
 			}
 
 			if ( item.e === 'style' && ( !item.a || !item.a.type || item.a.type === 'text/css' ) ) {
@@ -73,23 +76,62 @@ export default function parse ( source ) {
 		};
 	});
 
-	script = scripts.map( extractFragment ).join( ';' );
-
-	while ( match = requirePattern.exec( script ) ) {
-		modules.push( match[1] || match[2] );
-	}
-
-	// TODO glue together text nodes, where applicable
-
-	return {
+	result = {
 		template: parsed,
 		imports: imports,
-		script: script,
 		css: styles.map( extractFragment ).join( ' ' ),
+		script: '',
 		modules: modules
 	};
+
+	// extract position information, so that we can generate source maps
+	if ( scriptItem ) {
+		(function () {
+			var contentStart, contentEnd, lines;
+
+			contentStart = source.indexOf( '>', scriptItem.p[2] ) + 1;
+			contentEnd = contentStart + scriptItem.f[0].length;
+
+			lines = source.split( '\n' );
+
+			result.scriptStart = getPosition( lines, contentStart );
+			result.scriptEnd = getPosition( lines, contentEnd );
+		}());
+
+		// Glue scripts together, for convenience
+		result.script = scriptItem.f[0];
+
+		while ( match = requirePattern.exec( script ) ) {
+			modules.push( match[1] || match[2] );
+		}
+	}
+
+	return result;
 }
 
 function extractFragment ( item ) {
 	return item.f;
+}
+
+function getPosition ( lines, char ) {
+	var lineEnds, lineNum = 0, lineStart = 0, columnNum;
+
+	lineEnds = lines.map( function ( line ) {
+		var lineEnd = lineStart + line.length + 1; // +1 for the newline
+
+		lineStart = lineEnd;
+		return lineEnd;
+	}, 0 );
+
+	while ( char >= lineEnds[ lineNum ] ) {
+		lineStart = lineEnds[ lineNum ];
+		lineNum += 1;
+	}
+
+	columnNum = char - lineStart;
+	return {
+		line: lineNum,
+		column: columnNum,
+		char: char
+	};
 }
