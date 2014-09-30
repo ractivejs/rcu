@@ -2,6 +2,8 @@
   "name": "rcu",
   "version": "0.2.1",
   "description": "Utilities for implementing Ractive.js component loaders",
+  "license": "MIT",
+  "repository": "https://github.com/ractivejs/rcu",
   "devDependencies": {
     "grunt": "~0.4.4",
     "grunt-contrib-requirejs": "~0.4.3",
