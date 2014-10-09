@@ -1,6 +1,8 @@
 {
-	"template": {"v":1,"t":[{"t":7,"e":"h1","f":["Hello world!"]}]},
+	"template": {"v":1,"t":[{"t":7,"e":"h1","f":["Hello world!"],"p":[1,1,0]}]},
 	"script": "\n\tcomponent.exports = {\n\t\tinit: function () {\n\t\t\tconsole.log( '{{uninterpolated}}' );\n\t\t}\n\t};\n",
+	"scriptStart": { "line": 2, "column": 8, "char": 31 },
+	"scriptEnd": { "line": 8, "column": 0, "char": 125 },
 	"css": "",
 	"imports": [],
 	"modules": []

@@ -1,6 +1,6 @@
 /*
 
-	rcu (Ractive component utils) - 0.2.0 - 2014-08-02
+	rcu (Ractive component utils) - 0.3.0 - 2014-10-08
 	==============================================================
 
 	Copyright 2014 Rich Harris and contributors
@@ -10,7 +10,8 @@
 
 var Ractive;
 
-var getName = function getName( path ) {
+var getName, parse, eval2, _vlq_, make, resolve, rcu;
+getName = function getName( path ) {
 	var pathParts, filename, lastIndex;
 	pathParts = path.split( '/' );
 	filename = pathParts.pop();
@@ -20,24 +21,26 @@ var getName = function getName( path ) {
 	}
 	return filename;
 };
-
-var parse = function( getName ) {
-
+parse = function( getName ) {
+	var __export;
 	var requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
-	return function parse( source ) {
-		var parsed, template, links, imports, scripts, script, styles, match, modules, i, item;
+	__export = function parse( source ) {
+		var parsed, template, links, imports, scriptItem, script, styles, match, modules, i, item, result;
+		if ( !Ractive ) {
+			throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );
+		}
 		parsed = Ractive.parse( source, {
 			noStringify: true,
 			interpolate: {
 				script: false,
 				style: false
-			}
+			},
+			includeLinePositions: true
 		} );
 		if ( parsed.v !== 1 ) {
 			throw new Error( 'Mismatched template version! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app' );
 		}
 		links = [];
-		scripts = [];
 		styles = [];
 		modules = [];
 		// Extract certain top-level nodes from the template. We work backwards
@@ -51,7 +54,10 @@ var parse = function( getName ) {
 					links.push( template.splice( i, 1 )[ 0 ] );
 				}
 				if ( item.e === 'script' && ( !item.a || !item.a.type || item.a.type === 'text/javascript' ) ) {
-					scripts.push( template.splice( i, 1 )[ 0 ] );
+					if ( scriptItem ) {
+						throw new Error( 'You can only have one <script> tag per component file' );
+					}
+					scriptItem = template.splice( i, 1 )[ 0 ];
 				}
 				if ( item.e === 'style' && ( !item.a || !item.a.type || item.a.type === 'text/css' ) ) {
 					styles.push( template.splice( i, 1 )[ 0 ] );
@@ -80,37 +86,70 @@ var parse = function( getName ) {
 				href: href
 			};
 		} );
-		script = scripts.map( extractFragment ).join( ';' );
-		while ( match = requirePattern.exec( script ) ) {
-			modules.push( match[ 1 ] || match[ 2 ] );
-		}
-		// TODO glue together text nodes, where applicable
-		return {
+		result = {
 			template: parsed,
 			imports: imports,
-			script: script,
 			css: styles.map( extractFragment ).join( ' ' ),
+			script: '',
 			modules: modules
 		};
+		// extract position information, so that we can generate source maps
+		if ( scriptItem ) {
+			( function() {
+				var contentStart, contentEnd, lines;
+				contentStart = source.indexOf( '>', scriptItem.p[ 2 ] ) + 1;
+				contentEnd = contentStart + scriptItem.f[ 0 ].length;
+				lines = source.split( '\n' );
+				result.scriptStart = getPosition( lines, contentStart );
+				result.scriptEnd = getPosition( lines, contentEnd );
+			}() );
+			// Glue scripts together, for convenience
+			result.script = scriptItem.f[ 0 ];
+			while ( match = requirePattern.exec( script ) ) {
+				modules.push( match[ 1 ] || match[ 2 ] );
+			}
+		}
+		return result;
 	};
 
 	function extractFragment( item ) {
 		return item.f;
 	}
-}( getName );
 
+	function getPosition( lines, char ) {
+		var lineEnds, lineNum = 0,
+			lineStart = 0,
+			columnNum;
+		lineEnds = lines.map( function( line ) {
+			var lineEnd = lineStart + line.length + 1;
+			// +1 for the newline
+			lineStart = lineEnd;
+			return lineEnd;
+		}, 0 );
+		while ( char >= lineEnds[ lineNum ] ) {
+			lineStart = lineEnds[ lineNum ];
+			lineNum += 1;
+		}
+		columnNum = char - lineStart;
+		return {
+			line: lineNum,
+			column: columnNum,
+			char: char
+		};
+	}
+	return __export;
+}( getName );
 /*
 
-	eval2.js - 0.1.5 - 2014-06-02
+	eval2.js - 0.2.0 - 2014-09-28
 	==============================================================
 
 	Copyright 2014 Rich Harris
 	Released under the MIT license.
 
 */
-var eval2 = function() {
-
-	var _eval, isBrowser, isNode, head, Module;
+eval2 = function() {
+	var _eval, isBrowser, isNode, head, Module, base64Encode;
 	// This causes code to be eval'd in the global scope
 	_eval = eval;
 	if ( typeof document !== 'undefined' ) {
@@ -120,12 +159,21 @@ var eval2 = function() {
 		isNode = true;
 		Module = ( require.nodeRequire || require )( 'module' );
 	}
+	if ( typeof btoa === 'function' ) {
+		base64Encode = btoa;
+	} else if ( typeof Buffer === 'function' ) {
+		base64Encode = function( str ) {
+			return new Buffer( str, 'utf-8' ).toString( 'base64' );
+		};
+	} else {
+		base64Encode = function() {};
+	}
 
 	function eval2( script, options ) {
-		options = typeof options === 'function' ? {
-			callback: options
-		} : options || {};
-		if ( options.sourceURL ) {
+		options = options || {};
+		if ( options.sourceMap ) {
+			script += '\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64Encode( JSON.stringify( options.sourceMap ) );
+		} else if ( options.sourceURL ) {
 			script += '\n//# sourceURL=' + options.sourceURL;
 		}
 		try {
@@ -142,14 +190,24 @@ var eval2 = function() {
 	}
 	eval2.Function = function() {
 		var i, args = [],
-			body, wrapped;
+			body, wrapped, options;
 		i = arguments.length;
 		while ( i-- ) {
 			args[ i ] = arguments[ i ];
 		}
+		if ( typeof args[ args.length - 1 ] === 'object' ) {
+			options = args.pop();
+		} else {
+			options = {};
+		}
+		if ( options.sourceMap ) {
+			options.sourceMap = clone( options.sourceMap );
+			// shift everything a line down, to accommodate `(function (...) {`
+			options.sourceMap.mappings = ';' + options.sourceMap.mappings;
+		}
 		body = args.pop();
 		wrapped = '(function (' + args.join( ', ' ) + ') {\n' + body + '\n})';
-		return eval2( wrapped );
+		return eval2( wrapped, options );
 	};
 
 	function locateErrorUsingDataUri( code ) {
@@ -173,11 +231,101 @@ var eval2 = function() {
 		}
 		m.exports();
 	}
+
+	function clone( obj ) {
+		var cloned = {}, key;
+		for ( key in obj ) {
+			if ( obj.hasOwnProperty( key ) ) {
+				cloned[ key ] = obj[ key ];
+			}
+		}
+		return cloned;
+	}
 	return eval2;
 }();
+( function( global ) {
+	var vlq = {
+		encode: encode,
+		decode: decode
+	}, charToInteger, integerToChar;
+	charToInteger = {};
+	integerToChar = {};
+	'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='.split( '' ).forEach( function( char, i ) {
+		charToInteger[ char ] = i;
+		integerToChar[ i ] = char;
+	} );
 
-var make = function( parse, eval2 ) {
+	function encode( value ) {
+		var result;
+		if ( typeof value === 'number' ) {
+			result = encodeInteger( value );
+		} else if ( Array.isArray( value ) ) {
+			result = '';
+			value.forEach( function( num ) {
+				result += encodeInteger( num );
+			} );
+		} else {
+			throw new Error( 'vlq.encode accepts an integer or an array of integers' );
+		}
+		return result;
+	}
 
+	function encodeInteger( num ) {
+		var result = '',
+			clamped;
+		if ( num < 0 ) {
+			num = -num << 1 | 1;
+		} else {
+			num <<= 1;
+		}
+		do {
+			clamped = num & 31;
+			num >>= 5;
+			if ( num > 0 ) {
+				clamped |= 32;
+			}
+			result += integerToChar[ clamped ];
+		} while ( num > 0 );
+		return result;
+	}
+
+	function decode( string ) {
+		var result = [],
+			len = string.length,
+			i, hasContinuationBit, shift = 0,
+			value = 0;
+		for ( i = 0; i < len; i += 1 ) {
+			integer = charToInteger[ string[ i ] ];
+			if ( integer === undefined ) {
+				throw new Error( 'Invalid character (' + string[ i ] + ')' );
+			}
+			hasContinuationBit = integer & 32;
+			integer &= 31;
+			value += integer << shift;
+			if ( hasContinuationBit ) {
+				shift += 5;
+			} else {
+				shouldNegate = value & 1;
+				value >>= 1;
+				result.push( shouldNegate ? -value : value );
+				// reset
+				value = shift = 0;
+			}
+		}
+		return result;
+	}
+	// Export as AMD
+	if ( true ) {
+		_vlq_ = function() {
+			return typeof vlq === 'function' ? vlq() : vlq;
+		}();
+	} else if ( typeof module !== 'undefined' ) {
+		module.exports = vlq;
+	} else {
+		global.vlq = vlq;
+	}
+}( typeof window !== 'undefined' ? window : this ) );
+make = function( parse, eval2, vlq ) {
 	return function make( source, config, callback, errback ) {
 		var definition, url, createComponent, loadImport, imports, loadModule, modules, remainingDependencies, onloaded, ready;
 		config = config || {};
@@ -187,7 +335,7 @@ var make = function( parse, eval2 ) {
 		loadModule = config.loadModule;
 		definition = parse( source );
 		createComponent = function() {
-			var options, Component, script, factory, component, exports, prop;
+			var options, Component, mappings, factory, component, exports, prop;
 			options = {
 				template: definition.template,
 				partials: definition.partials,
@@ -195,9 +343,29 @@ var make = function( parse, eval2 ) {
 				components: imports
 			};
 			if ( definition.script ) {
+				mappings = definition.script.split( '\n' ).map( function( line, i ) {
+					var segment, lineNum, columnNum;
+					lineNum = i === 0 ? definition.scriptStart.line + i : 1;
+					columnNum = i === 0 ? definition.scriptStart.column : i === 1 ? -definition.scriptStart.column : 0;
+					// only one segment per line!
+					segment = [
+						0,
+						0,
+						lineNum,
+						columnNum
+					];
+					return vlq.encode( segment );
+				} ).join( ';' );
 				try {
-					script = definition.script + '\n//# sourceURL=' + url.substr( url.lastIndexOf( '/' ) + 1 ) + '.js';
-					factory = new eval2.Function( 'component', 'require', 'Ractive', definition.script );
+					factory = new eval2.Function( 'component', 'require', 'Ractive', definition.script, {
+						sourceMap: {
+							version: 3,
+							sources: [ url ],
+							sourcesContent: [ source ],
+							names: [],
+							mappings: mappings
+						}
+					} );
 					component = {};
 					factory( component, config.require, Ractive );
 					exports = component.exports;
@@ -264,9 +432,8 @@ var make = function( parse, eval2 ) {
 		}
 		ready = true;
 	};
-}( parse, eval2 );
-
-var resolve = function resolvePath( relativePath, base ) {
+}( parse, eval2, _vlq_ );
+resolve = function resolvePath( relativePath, base ) {
 	var pathParts, relativePathParts, part;
 	// If we've got an absolute path, or base is '', return
 	// relativePath
@@ -287,18 +454,14 @@ var resolve = function resolvePath( relativePath, base ) {
 	}
 	return pathParts.join( '/' );
 };
-
-var rcu = function( parse, make, resolve, getName ) {
-
-	return {
-		init: function( copy ) {
-			Ractive = copy;
-		},
-		parse: parse,
-		make: make,
-		resolve: resolve,
-		getName: getName
-	};
-}( parse, make, resolve, getName );
+rcu = {
+	init: function( copy ) {
+		Ractive = copy;
+	},
+	parse: parse,
+	make: make,
+	resolve: resolve,
+	getName: getName
+};
 
 export default rcu;
