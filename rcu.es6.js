@@ -1,9 +1,9 @@
 /*
 
-	rcu (Ractive component utils) - 0.3.0 - 2014-10-08
+	rcu (Ractive component utils) - 0.3.1 - 2015-01-05
 	==============================================================
 
-	Copyright 2014 Rich Harris and contributors
+	Copyright 2015 Rich Harris and contributors
 	Released under the MIT license.
 
 */
@@ -37,7 +37,7 @@ parse = function( getName ) {
 			},
 			includeLinePositions: true
 		} );
-		if ( parsed.v !== 1 ) {
+		if ( parsed.v < 1 ) {
 			throw new Error( 'Mismatched template version! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app' );
 		}
 		links = [];
@@ -233,7 +233,8 @@ eval2 = function() {
 	}
 
 	function clone( obj ) {
-		var cloned = {}, key;
+		var cloned = {},
+			key;
 		for ( key in obj ) {
 			if ( obj.hasOwnProperty( key ) ) {
 				cloned[ key ] = obj[ key ];
@@ -245,9 +246,10 @@ eval2 = function() {
 }();
 ( function( global ) {
 	var vlq = {
-		encode: encode,
-		decode: decode
-	}, charToInteger, integerToChar;
+			encode: encode,
+			decode: decode
+		},
+		charToInteger, integerToChar;
 	charToInteger = {};
 	integerToChar = {};
 	'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/='.split( '' ).forEach( function( char, i ) {
@@ -290,31 +292,31 @@ eval2 = function() {
 	}
 
 	function decode( string ) {
-		var result = [],
-			len = string.length,
-			i, hasContinuationBit, shift = 0,
-			value = 0;
-		for ( i = 0; i < len; i += 1 ) {
-			integer = charToInteger[ string[ i ] ];
-			if ( integer === undefined ) {
-				throw new Error( 'Invalid character (' + string[ i ] + ')' );
+			var result = [],
+				len = string.length,
+				i, hasContinuationBit, shift = 0,
+				value = 0;
+			for ( i = 0; i < len; i += 1 ) {
+				integer = charToInteger[ string[ i ] ];
+				if ( integer === undefined ) {
+					throw new Error( 'Invalid character (' + string[ i ] + ')' );
+				}
+				hasContinuationBit = integer & 32;
+				integer &= 31;
+				value += integer << shift;
+				if ( hasContinuationBit ) {
+					shift += 5;
+				} else {
+					shouldNegate = value & 1;
+					value >>= 1;
+					result.push( shouldNegate ? -value : value );
+					// reset
+					value = shift = 0;
+				}
 			}
-			hasContinuationBit = integer & 32;
-			integer &= 31;
-			value += integer << shift;
-			if ( hasContinuationBit ) {
-				shift += 5;
-			} else {
-				shouldNegate = value & 1;
-				value >>= 1;
-				result.push( shouldNegate ? -value : value );
-				// reset
-				value = shift = 0;
-			}
+			return result;
 		}
-		return result;
-	}
-	// Export as AMD
+		// Export as AMD
 	if ( true ) {
 		_vlq_ = function() {
 			return typeof vlq === 'function' ? vlq() : vlq;
