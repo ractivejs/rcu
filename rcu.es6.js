@@ -1,6 +1,6 @@
 /*
 
-	rcu (Ractive component utils) - 0.3.2 - 2015-01-05
+	rcu (Ractive component utils) - 0.3.1 - 2015-01-05
 	==============================================================
 
 	Copyright 2015 Rich Harris and contributors
