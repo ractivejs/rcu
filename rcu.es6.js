@@ -37,7 +37,7 @@ parse = function( getName ) {
 			},
 			includeLinePositions: true
 		} );
-		if ( parsed.v >= 1 ) {
+		if ( parsed.v < 1 ) {
 			throw new Error( 'Mismatched template version! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app' );
 		}
 		links = [];
