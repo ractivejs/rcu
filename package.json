@@ -1,6 +1,6 @@
 {
   "name": "rcu",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "description": "Utilities for implementing Ractive.js component loaders",
   "license": "MIT",
   "repository": "https://github.com/ractivejs/rcu",
