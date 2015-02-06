@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.4.0 (currently unreleased - install `ractivejs/rcu#edge` to use)
+
+* Update expected template version to 3, to match Ractive 0.7.0
+* Use esperanto to generate UMD export, and distribute ES6 modules to ES6-aware systems via `jsnext:main` field in package.json
+
 ## 0.3.0
 
 * Started maintaining a changelog
