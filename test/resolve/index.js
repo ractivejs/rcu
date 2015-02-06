@@ -1,4 +1,4 @@
-var rcu = require( '../../rcu.node' ),
+var rcu = require( '../../dist/rcu' ),
 	assert = require( 'assert' ),
 	tests;
 

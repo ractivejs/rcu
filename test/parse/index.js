@@ -2,7 +2,7 @@ var fs = require( 'fs' ),
 	path = require( 'path' ),
 	spelunk = require( 'spelunk' ),
 
-	rcu = require( '../../rcu.node' ),
+	rcu = require( '../../dist/rcu' ),
 	assert = require( 'assert' ),
 
 	input, output;

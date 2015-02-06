@@ -3,9 +3,9 @@ import make from 'make';
 import resolve from 'resolve';
 import getName from 'getName';
 
-export default {
+var rcu = {
 	init: function ( copy ) {
-		Ractive = copy;
+		rcu.Ractive = copy;
 	},
 
 	parse: parse,
@@ -13,3 +13,5 @@ export default {
 	resolve: resolve,
 	getName: getName
 };
+
+export default rcu;

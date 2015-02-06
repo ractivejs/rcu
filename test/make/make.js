@@ -1,6 +1,6 @@
 var fs = require( 'fs' ),
 	path = require( 'path' ),
-	rcu = require( '../../rcu.node' ),
+	rcu = require( '../../dist/rcu' ),
 
 	queue = [],
 	running;

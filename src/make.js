@@ -1,6 +1,7 @@
+import rcu from './rcu';
 import parse from 'parse';
 import eval2 from 'eval2';
-import vlq from 'vlq';
+import * as vlq from 'vlq';
 
 export default function make ( source, config, callback, errback ) {
 	var definition,
@@ -58,7 +59,7 @@ export default function make ( source, config, callback, errback ) {
 				});
 
 				component = {};
-				factory( component, config.require, Ractive );
+				factory( component, config.require, rcu.Ractive );
 				exports = component.exports;
 
 				if ( typeof exports === 'object' ) {
@@ -69,7 +70,7 @@ export default function make ( source, config, callback, errback ) {
 					}
 				}
 
-				Component = Ractive.extend( options );
+				Component = rcu.Ractive.extend( options );
 			} catch ( err ) {
 				errback( err );
 				return;
@@ -77,7 +78,7 @@ export default function make ( source, config, callback, errback ) {
 
 			callback( Component );
 		} else {
-			Component = Ractive.extend( options );
+			Component = rcu.Ractive.extend( options );
 			callback( Component );
 		}
 	};

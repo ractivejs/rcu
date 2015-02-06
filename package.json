@@ -1,25 +1,24 @@
 {
   "name": "rcu",
-  "version": "0.3.0",
+  "version": "0.4.0-edge",
   "description": "Utilities for implementing Ractive.js component loaders",
   "license": "MIT",
   "repository": "https://github.com/ractivejs/rcu",
+  "dependencies": {
+    "eval2": "^0.3.0",
+    "vlq": "^0.2.0"
+  },
   "devDependencies": {
     "eval2": "^0.2.0",
-    "gobble": "^0.5.11",
-    "gobble-amdclean": "^0.1.0",
-    "gobble-browserify": "^0.1.0",
-    "gobble-esperanto": "^0.1.0",
-    "gobble-requirejs": "^0.2.0",
-    "grunt": "~0.4.4",
-    "grunt-contrib-clean": "~0.5.0",
-    "grunt-contrib-concat": "~0.4.0",
-    "grunt-contrib-jshint": "~0.9.2",
-    "grunt-gobble": "^0.1.1",
-    "grunt-jsbeautifier": "~0.2.6",
-    "ractive": "^0.6.0",
+    "ractive": "git://github.com/ractivejs/ractive#build",
     "spelunk": "^0.1.1",
     "vlq": "^0.1.0"
   },
-  "main": "rcu.js"
+  "main": "dist/rcu.js",
+  "jsnext:main": "src/rcu.js",
+  "scripts": {
+    "build": "esperanto -b -d src -i rcu.js -o dist/rcu.js -t umd -n rcu",
+    "test": "node test",
+    "prepublish": "npm run build; npm test"
+  }
 }
