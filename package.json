@@ -9,6 +9,7 @@
     "vlq": "^0.2.0"
   },
   "devDependencies": {
+    "esperanto": "^0.6.11",
     "eval2": "^0.2.0",
     "ractive": "git://github.com/ractivejs/ractive#build",
     "spelunk": "^0.1.1",
