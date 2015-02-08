@@ -1,0 +1,17 @@
+{
+	"template": {"v":3,"t":[]},
+	"script": "\n\tvar foo = require( 'foo' );\n",
+	"css": "",
+	"imports": [],
+	"modules": [ "foo" ],
+	"scriptStart": {
+		"line": 0,
+		"column": -40,
+		"char": 8
+	},
+	"scriptEnd": {
+		"line": 2,
+		"column": 0,
+		"char": 38
+	}
+}

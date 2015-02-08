@@ -120,7 +120,7 @@
 			// Glue scripts together, for convenience
 			result.script = scriptItem.f[0];
 
-			while ( match = requirePattern.exec( script ) ) {
+			while ( match = requirePattern.exec( result.script ) ) {
 				modules.push( match[1] || match[2] );
 			}
 		}
