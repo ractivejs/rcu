@@ -23,8 +23,8 @@
   "main": "dist/rcu.js",
   "jsnext:main": "src/rcu.js",
   "scripts": {
-    "build": "esperanto -b -d src -i rcu.js -o dist/rcu.js -t umd -n rcu",
-    "test": "node test",
-    "prepublish": "npm run build; npm test"
+    "build": "set -e; npm test; cp test/lib/* dist",
+    "test": "mocha",
+    "prepublish": "npm run build"
   }
 }
