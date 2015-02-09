@@ -5,12 +5,14 @@ var Promise = require( 'es6-promise' ).Promise;
 
 module.exports = gobble( 'src' )
 .transform( '6to5', {
-	blacklist: [ 'es6.modules', 'useStrict' ]
+	blacklist: [ 'es6.modules', 'useStrict' ],
+	sourceMap: false
 })
 .transform( 'esperanto-bundle', {
 	entry: 'rcu',
 	type: 'umd',
 	name: 'rcu',
+	sourceMap: false,
 
 	resolvePath: function ( importee, importer ) {
 		return new Promise( function ( fulfil, reject ) {
