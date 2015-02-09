@@ -1,17 +1,17 @@
-import parse from 'parse';
-import make from 'make';
-import resolve from 'resolve';
-import getName from 'getName';
+import parse from './parse';
+import make from './make';
+import resolve from './resolve';
+import getName from './getName';
 
 var rcu = {
-	init: function ( copy ) {
+	init ( copy ) {
 		rcu.Ractive = copy;
 	},
 
-	parse: parse,
-	make: make,
-	resolve: resolve,
-	getName: getName
+	parse,
+	make,
+	resolve,
+	getName
 };
 
 export default rcu;

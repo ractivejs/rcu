@@ -1,5 +1,5 @@
 import rcu from './rcu';
-import getName from 'getName';
+import getName from './getName';
 
 var requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
 var TEMPLATE_VERSION = 3;
