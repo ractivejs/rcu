@@ -1,5 +1,6 @@
 import rcu from './rcu';
 import getName from './getName';
+import getLinePosition from './utils/getLinePosition';
 
 var requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
 var TEMPLATE_VERSION = 3;
@@ -97,8 +98,8 @@ export default function parse ( source ) {
 
 			lines = source.split( '\n' );
 
-			result.scriptStart = getPosition( lines, contentStart );
-			result.scriptEnd = getPosition( lines, contentEnd );
+			result.scriptStart = getLinePosition( lines, contentStart );
+			result.scriptEnd = getLinePosition( lines, contentEnd );
 		}());
 
 		// Glue scripts together, for convenience
@@ -114,27 +115,4 @@ export default function parse ( source ) {
 
 function extractFragment ( item ) {
 	return item.f;
-}
-
-function getPosition ( lines, char ) {
-	var lineEnds, lineNum = 0, lineStart = 0, columnNum;
-
-	lineEnds = lines.map( function ( line ) {
-		var lineEnd = lineStart + line.length + 1; // +1 for the newline
-
-		lineStart = lineEnd;
-		return lineEnd;
-	}, 0 );
-
-	while ( char >= lineEnds[ lineNum ] ) {
-		lineStart = lineEnds[ lineNum ];
-		lineNum += 1;
-	}
-
-	columnNum = char - lineStart;
-	return {
-		line: lineNum,
-		column: columnNum,
-		char: char
-	};
 }

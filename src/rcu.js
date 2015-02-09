@@ -1,5 +1,6 @@
 import parse from './parse';
 import make from './make';
+import generateSourceMap from './generateSourceMap';
 import resolve from './resolve';
 import getName from './getName';
 
@@ -10,6 +11,7 @@ var rcu = {
 
 	parse,
 	make,
+	generateSourceMap,
 	resolve,
 	getName
 };

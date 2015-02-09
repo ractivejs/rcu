@@ -1,7 +1,7 @@
 import eval2 from 'eval2';
-import { encode } from 'vlq';
 import rcu from './rcu';
 import parse from './parse';
+import generateSourceMap from './generateSourceMap';
 
 export default function make ( source, config, callback, errback ) {
 	var definition,
@@ -25,7 +25,7 @@ export default function make ( source, config, callback, errback ) {
 	definition = parse( source );
 
 	createComponent = function () {
-		var options, Component, mappings, factory, component, exports, prop;
+		var options, Component, factory, component, exports, prop;
 
 		options = {
 			template: definition.template,
@@ -35,27 +35,18 @@ export default function make ( source, config, callback, errback ) {
 		};
 
 		if ( definition.script ) {
-			mappings = definition.script.split( '\n' ).map( function ( line, i ) {
-				var segment, lineNum, columnNum;
-
-				lineNum = ( i === 0 ? definition.scriptStart.line + i : 1 );
-				columnNum = ( i === 0 ? definition.scriptStart.column : i === 1 ? -definition.scriptStart.column : 0 );
-
-				// only one segment per line!
-				segment = [ 0, 0, lineNum, columnNum ];
-
-				return encode( segment );
-			}).join( ';' );
+			let sourceMap = generateSourceMap({
+				code: definition.script,
+				start: definition.scriptStart,
+				end: definition.scriptEnd
+			}, {
+				source: url,
+				content: source
+			});
 
 			try {
 				factory = new eval2.Function( 'component', 'require', 'Ractive', definition.script, {
-					sourceMap: {
-						version: 3,
-						sources: [ url ],
-						sourcesContent: [ source ],
-						names: [],
-						mappings: mappings
-					}
+					sourceMap
 				});
 
 				component = {};
