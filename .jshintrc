@@ -22,6 +22,10 @@
 		"window": true,
 		"__dirname": true,
 		"btoa": true,
-		"Buffer": true
+		"Buffer": true,
+
+		"describe": true,
+		"it": true,
+		"before": true
 	}
 }

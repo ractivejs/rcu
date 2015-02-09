@@ -1,57 +1,58 @@
-var rcu = require( '../../dist/rcu' ),
-	assert = require( 'assert' ),
-	tests;
+var assert = require( 'assert' );
 
-tests = [
+describe( 'rcu.resolve()', function () {
+	var rcu, tests;
 
-	{
-		base: '',
-		path: 'foo.html',
-		result: 'foo.html'
-	},
+	before( function () {
+		return require( '../utils/build' )().then( function ( lib ) {
+			rcu = lib;
+		});
+	});
 
-	{
-		base: 'components/',
-		path: 'foo.html',
-		result: 'components/foo.html'
-	},
+	tests = [
+		{
+			base: '',
+			path: 'foo.html',
+			expected: 'foo.html'
+		},
 
-	{
-		base: 'foo.html',
-		path: 'bar.html',
-		result: 'bar.html'
-	},
+		{
+			base: 'components/',
+			path: 'foo.html',
+			expected: 'components/foo.html'
+		},
 
-	{
-		base: 'components/foo.html',
-		path: 'bar.html',
-		result: 'components/bar.html'
-	},
+		{
+			base: 'foo.html',
+			path: 'bar.html',
+			expected: 'bar.html'
+		},
 
-	{
-		base: 'components/foo.html',
-		path: './bar.html',
-		result: 'components/bar.html'
-	},
+		{
+			base: 'components/foo.html',
+			path: 'bar.html',
+			expected: 'components/bar.html'
+		},
 
-	{
-		base: 'components/foo.html',
-		path: '../bar.html',
-		result: 'bar.html'
-	}
+		{
+			base: 'components/foo.html',
+			path: './bar.html',
+			expected: 'components/bar.html'
+		},
 
-];
+		{
+			base: 'components/foo.html',
+			path: '../bar.html',
+			expected: 'bar.html'
+		}
+	];
 
-tests.forEach( function ( test ) {
-	var resolved;
-
-	console.log( '\n' );
-	console.log( 'path: "' + test.path + '"' );
-	console.log( 'base: "' + test.base + '"' );
-	console.log( 'expected: "' + test.result + '"' );
-	resolved = rcu.resolve( test.path, test.base );
-	console.log( 'actual:   "' + resolved + '"' );
-
-	resolved = rcu.resolve( test.path, test.base );
-	assert.equal( resolved, test.result );
+	tests.forEach( function ( test ) {
+		it( 'resolves "' + test.path + '" against "' + test.base + '" correctly', function () {
+			var resolved = rcu.resolve( test.path, test.base );
+			assert.equal( resolved, test.expected );
+		});
+	});
 });
+
+

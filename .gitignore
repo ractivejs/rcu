@@ -2,3 +2,5 @@ node_modules
 tmp
 amd
 .gobble
+.gobble*
+test/lib
