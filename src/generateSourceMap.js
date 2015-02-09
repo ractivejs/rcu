@@ -1,7 +1,7 @@
 import { encode } from 'vlq';
 import SourceMap from './utils/SourceMap';
 
-export default function generateSourceMap ( source, options = {} ) {
+export default function generateSourceMap ( definition, options = {} ) {
 	var lines, mappings, padding;
 
 	if ( !options || !options.source ) {
@@ -12,17 +12,17 @@ export default function generateSourceMap ( source, options = {} ) {
 	// mapping that to anything, instead we just have a bunch of empty lines
 	padding = new Array( ( options.padding || 0 ) + 1 ).join( ';' );
 
-	lines = source.code.split( '\n' );
+	lines = definition.script.split( '\n' );
 	mappings = padding + lines.map( ( line, i ) => {
 		var segment, sourceCodeLine, sourceCodeColumn;
 
 		if ( i === 0 ) {
 			// first mapping points to code immediately following opening <script> tag
-			sourceCodeLine = source.start.line;
-			sourceCodeColumn = source.start.column;
+			sourceCodeLine = definition.scriptStart.line;
+			sourceCodeColumn = definition.scriptStart.column;
 		} else {
 			sourceCodeLine = 1; // relative, not absolute (i.e. each line increments by one)
-			sourceCodeColumn = i === 1 ? -source.start.column : 0; // if this is the second line, we need to reset
+			sourceCodeColumn = i === 1 ? -definition.scriptStart.column : 0; // if this is the second line, we need to reset
 		}
 
 		// only one segment per line!

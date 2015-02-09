@@ -35,11 +35,7 @@ export default function make ( source, config, callback, errback ) {
 		};
 
 		if ( definition.script ) {
-			let sourceMap = generateSourceMap({
-				code: definition.script,
-				start: definition.scriptStart,
-				end: definition.scriptEnd
-			}, {
+			let sourceMap = generateSourceMap( definition, {
 				source: url,
 				content: source
 			});
