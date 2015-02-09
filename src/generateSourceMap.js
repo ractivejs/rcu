@@ -1,6 +1,16 @@
 import { encode } from 'vlq';
 import SourceMap from './utils/SourceMap';
 
+/**
+ * Generates a v3 sourcemap between an original source and its built form
+ * @param {object} definition - the result of `rcu.parse( originalSource )`
+ * @param {object} options
+ * @param {string} options.source - the name of the original source file
+ * @param {number=} options.padding - the number of lines in the generated
+   code that precede the script portion of the original source
+ * @param {string=} options.file - the name of the generated file
+ * @returns {object}
+ */
 export default function generateSourceMap ( definition, options = {} ) {
 	var lines, mappings, padding;
 
@@ -14,32 +24,22 @@ export default function generateSourceMap ( definition, options = {} ) {
 
 	lines = definition.script.split( '\n' );
 	mappings = padding + lines.map( ( line, i ) => {
-		var segment, sourceCodeLine, sourceCodeColumn;
-
 		if ( i === 0 ) {
 			// first mapping points to code immediately following opening <script> tag
-			sourceCodeLine = definition.scriptStart.line;
-			sourceCodeColumn = definition.scriptStart.column;
-		} else {
-			sourceCodeLine = 1; // relative, not absolute (i.e. each line increments by one)
-			sourceCodeColumn = i === 1 ? -definition.scriptStart.column : 0; // if this is the second line, we need to reset
+			return encode([ 0, 0, definition.scriptStart.line, definition.scriptStart.column ]);
 		}
 
-		// only one segment per line!
-		segment = [
-			0,                // column of generated (.js) code in which segment starts
-			0,                // index of source (.html) file
-			sourceCodeLine,   // zero-based index of line in source (.html) file corresponding to this line
-			sourceCodeColumn  // zero-based index of column in source (.html) file corresponding to this line
-		];
+		if ( i === 1 ) {
+			return encode([ 0, 0, 1, -definition.scriptStart.column ]);
+		}
 
-		return encode( segment );
+		return 'AACA'; // equates to [ 0, 0, 1, 0 ];
 	}).join( ';' );
 
 	return new SourceMap({
 		file: options.file,
 		sources: [ options.source ],
-		sourcesContent: options.content ? [ options.content ] : [],
+		sourcesContent: [ definition.source ],
 		names: [],
 		mappings
 	});
