@@ -1,7 +1,7 @@
-import rcu from './rcu';
-import parse from 'parse';
 import eval2 from 'eval2';
-import * as vlq from 'vlq';
+import { encode } from 'vlq';
+import rcu from './rcu';
+import parse from './parse';
 
 export default function make ( source, config, callback, errback ) {
 	var definition,
@@ -44,7 +44,7 @@ export default function make ( source, config, callback, errback ) {
 				// only one segment per line!
 				segment = [ 0, 0, lineNum, columnNum ];
 
-				return vlq.encode( segment );
+				return encode( segment );
 			}).join( ';' );
 
 			try {
