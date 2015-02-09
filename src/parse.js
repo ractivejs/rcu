@@ -79,6 +79,7 @@ export default function parse ( source ) {
 	});
 
 	result = {
+		source: source,
 		template: parsed,
 		imports: imports,
 		css: styles.map( extractFragment ).join( ' ' ),

@@ -1,4 +1,5 @@
 {
+	"source": "<link rel='ractive' href='foo.html'>\n\n<h1>Hello world!</h1>\n",
 	"template": {"v":3,"t":[{"t":7,"e":"h1","f":["Hello world!"],"p":[3,1,38]}]},
 	"script": "",
 	"css": "",
