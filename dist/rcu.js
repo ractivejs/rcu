@@ -190,7 +190,7 @@
   	options = options || {};
 
   	if ( options.sourceMap ) {
-  		script += '\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,' + base64Encode( JSON.stringify( options.sourceMap ) );
+  		script += '\n//# sourceMa' + 'ppingURL=data:application/json;charset=utf-8;base64,' + base64Encode( JSON.stringify( options.sourceMap ) );
   	}
 
   	else if ( options.sourceURL ) {
@@ -229,6 +229,11 @@
   		options = {};
   	}
 
+  	// allow an array of arguments to be passed
+  	if ( args.length === 1 && Object.prototype.toString.call( args ) === '[object Array]' ) {
+  		args = args[0];
+  	}
+
   	if ( options.sourceMap ) {
   		options.sourceMap = clone( options.sourceMap );
 
@@ -246,7 +251,7 @@
   function locateErrorUsingDataUri ( code ) {
   	var dataURI, scriptElement;
 
-  	dataURI = 'data:text/javascript;charset=utf-8,' + encodeURIComponent( code );
+  	dataURI = 'da' + 'ta:text/javascript;charset=utf-8,' + encodeURIComponent( code );
 
   	scriptElement = document.createElement( 'script' );
   	scriptElement.src = dataURI;
@@ -330,17 +335,15 @@
   }
 
   function encode ( value ) {
-  	var result;
+  	var result, i;
 
   	if ( typeof value === 'number' ) {
   		result = encodeInteger( value );
-  	} else if ( Array.isArray( value ) ) {
-  		result = '';
-  		value.forEach( function ( num ) {
-  			result += encodeInteger( num );
-  		});
   	} else {
-  		throw new Error( 'vlq.encode accepts an integer or an array of integers' );
+  		result = '';
+  		for ( i = 0; i < value.length; i += 1 ) {
+  			result += encodeInteger( value[i] );
+  		}
   	}
 
   	return result;
@@ -404,15 +407,14 @@
    * @param {object} definition - the result of `rcu.parse( originalSource )`
    * @param {object} options
    * @param {string} options.source - the name of the original source file
-   * @param {number=} options.padding - the number of lines in the generated
+   * @param {number=} options.offset - the number of lines in the generated
      code that precede the script portion of the original source
    * @param {string=} options.file - the name of the generated file
    * @returns {object}
    */
 
-  function generateSourceMap(definition) {
-  	var options = arguments[1] === undefined ? {} : arguments[1];
-  	var lines, mappings, padding;
+  function generateSourceMap(definition, options) {
+  	var lines, mappings, offset;
 
   	if (!options || !options.source) {
   		throw new Error("You must supply an options object with a `source` property to rcu.generateSourceMap()");
@@ -420,10 +422,10 @@
 
   	// The generated code probably includes a load of module gubbins - we don't bother
   	// mapping that to anything, instead we just have a bunch of empty lines
-  	padding = new Array((options.padding || 0) + 1).join(";");
+  	offset = new Array((options.offset || 0) + 1).join(";");
 
   	lines = definition.script.split("\n");
-  	mappings = padding + lines.map(function (line, i) {
+  	mappings = offset + lines.map(function (line, i) {
   		if (i === 0) {
   			// first mapping points to code immediately following opening <script> tag
   			return encode([0, 0, definition.scriptStart.line, definition.scriptStart.column]);
