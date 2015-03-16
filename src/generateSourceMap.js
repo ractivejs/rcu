@@ -6,13 +6,13 @@ import SourceMap from './utils/SourceMap';
  * @param {object} definition - the result of `rcu.parse( originalSource )`
  * @param {object} options
  * @param {string} options.source - the name of the original source file
- * @param {number=} options.padding - the number of lines in the generated
+ * @param {number=} options.offset - the number of lines in the generated
    code that precede the script portion of the original source
  * @param {string=} options.file - the name of the generated file
  * @returns {object}
  */
-export default function generateSourceMap ( definition, options = {} ) {
-	var lines, mappings, padding;
+export default function generateSourceMap ( definition, options ) {
+	var lines, mappings, offset;
 
 	if ( !options || !options.source ) {
 		throw new Error( 'You must supply an options object with a `source` property to rcu.generateSourceMap()' );
@@ -20,10 +20,10 @@ export default function generateSourceMap ( definition, options = {} ) {
 
 	// The generated code probably includes a load of module gubbins - we don't bother
 	// mapping that to anything, instead we just have a bunch of empty lines
-	padding = new Array( ( options.padding || 0 ) + 1 ).join( ';' );
+	offset = new Array( ( options.offset || 0 ) + 1 ).join( ';' );
 
 	lines = definition.script.split( '\n' );
-	mappings = padding + lines.map( ( line, i ) => {
+	mappings = offset + lines.map( ( line, i ) => {
 		if ( i === 0 ) {
 			// first mapping points to code immediately following opening <script> tag
 			return encode([ 0, 0, definition.scriptStart.line, definition.scriptStart.column ]);
