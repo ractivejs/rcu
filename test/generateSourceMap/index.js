@@ -27,11 +27,11 @@ describe( 'rcu.generateSourceMap()', function () {
 		});
 	});
 
-	it( 'generates a sourcemap with padding', function () {
+	it( 'generates a sourcemap with offset', function () {
 		return sander.readFile( __dirname, 'samples/foo.html' ).then( String ).then( function ( foo ) {
 			var definition = rcu.parse( foo );
 			var sourceMap = rcu.generateSourceMap( definition, {
-				padding: 10,
+				offset: 10,
 				source: 'foo.html',
 				file: 'foo.js'
 			});
