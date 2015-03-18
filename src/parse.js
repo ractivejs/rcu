@@ -1,22 +1,25 @@
-import getName from 'getName';
+import rcu from './rcu';
+import getName from './getName';
+import getLinePosition from './utils/getLinePosition';
 
 var requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
+var TEMPLATE_VERSION = 3;
 
 export default function parse ( source ) {
 	var parsed, template, links, imports, scriptItem, script, styles, match, modules, i, item, result;
 
-	if ( !Ractive ) {
+	if ( !rcu.Ractive ) {
 		throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );
 	}
 
-	parsed = Ractive.parse( source, {
+	parsed = rcu.Ractive.parse( source, {
 		noStringify: true,
 		interpolate: { script: false, style: false },
 		includeLinePositions: true
 	});
 
-	if ( parsed.v !== 1 ) {
-		throw new Error( 'Mismatched template version! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app' );
+	if ( parsed.v !== TEMPLATE_VERSION ) {
+		throw new Error( 'Mismatched template version (expected ' + TEMPLATE_VERSION + ', got ' + parsed.v + ')! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app' );
 	}
 
 	links = [];
@@ -77,6 +80,7 @@ export default function parse ( source ) {
 	});
 
 	result = {
+		source: source,
 		template: parsed,
 		imports: imports,
 		css: styles.map( extractFragment ).join( ' ' ),
@@ -94,14 +98,14 @@ export default function parse ( source ) {
 
 			lines = source.split( '\n' );
 
-			result.scriptStart = getPosition( lines, contentStart );
-			result.scriptEnd = getPosition( lines, contentEnd );
+			result.scriptStart = getLinePosition( lines, contentStart );
+			result.scriptEnd = getLinePosition( lines, contentEnd );
 		}());
 
 		// Glue scripts together, for convenience
 		result.script = scriptItem.f[0];
 
-		while ( match = requirePattern.exec( script ) ) {
+		while ( match = requirePattern.exec( result.script ) ) {
 			modules.push( match[1] || match[2] );
 		}
 	}
@@ -111,27 +115,4 @@ export default function parse ( source ) {
 
 function extractFragment ( item ) {
 	return item.f;
-}
-
-function getPosition ( lines, char ) {
-	var lineEnds, lineNum = 0, lineStart = 0, columnNum;
-
-	lineEnds = lines.map( function ( line ) {
-		var lineEnd = lineStart + line.length + 1; // +1 for the newline
-
-		lineStart = lineEnd;
-		return lineEnd;
-	}, 0 );
-
-	while ( char >= lineEnds[ lineNum ] ) {
-		lineStart = lineEnds[ lineNum ];
-		lineNum += 1;
-	}
-
-	columnNum = char - lineStart;
-	return {
-		line: lineNum,
-		column: columnNum,
-		char: char
-	};
 }

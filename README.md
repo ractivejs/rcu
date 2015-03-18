@@ -55,9 +55,21 @@ This function converts an HTML file into a constructor that inherits from `Racti
 
 Returns a name from a path, e.g. `path/to/foo.html` becomes `foo`.
 
+
 ## rcu.resolve( relativePath, baseUrl )
 
 Resolves `relativePath` against `baseUrl`, e.g.
 
 ```js
 rcu.resolve( '../bar.html', 'path/to/foo.html' ) === 'path/bar.html'; // true
+
+
+## rcu.generateSourceMap( definition, options )
+
+Generate a v3 sourcemap, with one major assumption: the contents of the component's `<script>` block are copied directly into the generated code, and we only need to worry about the offset (i.e. the number of non-`<script>` lines of code, representing the template etc, that exist in the generated code before the `<script>` tag's contents).
+
+* **definition** - the result of `rcu.parse()`
+* **options** - an object containing the following properties:
+	* **source** - the name of the original file, e.g. '/path/to/template.html'
+	* offset (optional, but recommended) - the number of non-`<script>` lines before the `<script>` contents
+	* file (optional) - the name of the generated file, e.g. '/path/to/template.js'

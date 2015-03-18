@@ -1,24 +1,43 @@
-var gobble = require( 'gobble' ),
+var gobble = require( 'gobble' );
+var path = require( 'path' );
+var resolve = require( 'resolve' );
+var Promise = require( 'es6-promise' ).Promise;
 
-	node_modules,
-	src,
-	compiled;
+module.exports = gobble( 'src' )
+.transform( '6to5', {
+	blacklist: [ 'es6.modules', 'useStrict' ],
+	sourceMap: false
+})
+.transform( 'esperanto-bundle', {
+	entry: 'rcu',
+	type: 'umd',
+	name: 'rcu',
+	sourceMap: false,
 
-node_modules = gobble( 'node_modules', { static: true });
-src = gobble( 'src' ).transform( 'esperanto', { 'defaultOnly': true });
+	resolvePath: function ( importee, importer ) {
+		return new Promise( function ( fulfil, reject ) {
+			var callback = function ( err, result ) {
+				if ( err ) {
+					reject( err );
+				} else {
+					fulfil( result );
+				}
+			};
 
-compiled = gobble([ src, node_modules ])
-	.transform( 'requirejs', {
-		name: 'rcu',
-		out: 'rcu.js',
-		optimize: 'none',
-		paths: {
-			eval2: 'eval2/eval2.amd',
-			vlq: 'vlq/vlq'
-		}
-	})
-	.transform( 'amdclean', {
-		wrap: false
-	});
+			resolve( importee, {
+				basedir: path.dirname( importer ),
+				packageFilter: function ( pkg ) {
+					if ( pkg[ 'jsnext:main' ] ) {
+						pkg.main = pkg[ 'jsnext:main' ];
+						return pkg;
+					}
 
-module.exports = compiled;
+					var err = new Error( 'package ' + pkg.name + ' does not supply a jsnext:main field' );
+					err.code = 'ENOENT'; // hack
+					reject( err );
+					return {};
+				}
+			}, callback );
+		});
+	}
+});

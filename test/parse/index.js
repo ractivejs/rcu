@@ -1,60 +1,29 @@
-var fs = require( 'fs' ),
-	path = require( 'path' ),
-	spelunk = require( 'spelunk' ),
+var assert = require( 'assert' );
+var sander = require( 'sander' );
+var Promise = sander.Promise;
 
-	rcu = require( '../../rcu.node' ),
-	assert = require( 'assert' ),
+describe( 'rcu.parse()', function () {
+	var rcu;
 
-	input, output;
+	before( function () {
+		return require( '../utils/build' )().then( function ( lib ) {
+			rcu = lib;
+		});
+	});
 
-// initialise RCU
-rcu.init( require( 'ractive' ) );
+	sander.readdirSync( __dirname, 'input' ).forEach( function ( input ) {
+		var name = input.replace( '.html', '' );
+		var output = name + '.json';
 
-spelunk( path.join( __dirname, 'input' ), function ( err, result ) {
-	if ( err ) {
-		throw err;
-	}
+		it( name, function () {
+			return sander.readFile( __dirname, 'input', input ).then( String ).then( function ( definition ) {
+				var actual = rcu.parse( definition );
 
-	input = result;
-	check();
+				return sander.readFile( __dirname, 'output', output ).then( String ).then( JSON.parse ).then( function ( expected ) {
+					assert.deepEqual( actual, expected );
+				});
+			});
+		});
+	});
 });
-
-spelunk( path.join( __dirname, 'output' ), function ( err, result ) {
-	if ( err ) {
-		throw err;
-	}
-
-	output = result;
-	check();
-});
-
-function check () {
-	if ( input && output ) {
-		// we're ready
-		test();
-		console.log( '\nall rcu.parse tests passed' );
-	}
-}
-
-
-function test () {
-	var t;
-
-	for ( t in input ) {
-		expected = output[ t ];
-		actual = rcu.parse( input[ t ] );
-
-		process.stdout.write( '.' );
-
-		try {
-			assert.deepEqual( actual, expected, 'Failed' );
-		} catch ( err ) {
-			console.log( '\nFailed at test "' + t + '"' );
-			console.log( 'expected\n', JSON.stringify( expected, null, '  ' ) );
-			console.log( 'actual\n', JSON.stringify( actual, null, '  ' ) );
-
-			throw err;
-		}
-	}
-}
 
