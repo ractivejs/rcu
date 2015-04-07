@@ -62,6 +62,7 @@ Resolves `relativePath` against `baseUrl`, e.g.
 
 ```js
 rcu.resolve( '../bar.html', 'path/to/foo.html' ) === 'path/bar.html'; // true
+```
 
 
 ## rcu.generateSourceMap( definition, options )
