@@ -10,15 +10,14 @@
   },
   "devDependencies": {
     "es6-promise": "^2.0.1",
-    "esperanto": "^0.6.11",
-    "gobble": "^0.7.2",
-    "gobble-6to5": "^3.0.0",
+    "gobble": "^0.10.0",
+    "gobble-babel": "^5.1.0",
     "gobble-esperanto-bundle": "^0.1.7",
     "mocha": "^2.1.0",
-    "ractive": "git://github.com/ractivejs/ractive#build",
+    "ractive": "^0.7.3",
     "resolve": "^1.1.0",
-    "sander": "^0.2.2",
-    "spelunk": "^0.1.1"
+    "sander": "^0.3.0",
+    "spelunk": "^0.4.0"
   },
   "main": "dist/rcu.js",
   "jsnext:main": "src/rcu.js",
