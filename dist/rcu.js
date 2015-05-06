@@ -7,10 +7,10 @@
   function getName(path) {
   	var pathParts, filename, lastIndex;
 
-  	pathParts = path.split("/");
+  	pathParts = path.split('/');
   	filename = pathParts.pop();
 
-  	lastIndex = filename.lastIndexOf(".");
+  	lastIndex = filename.lastIndexOf('.');
   	if (lastIndex !== -1) {
   		filename = filename.substr(0, lastIndex);
   	}
@@ -30,34 +30,36 @@
        * @property {number} char - the character index that was passed in
    */
 
-  function getLinePosition(lines, char) {
-  	var lineEnds,
-  	    line = 0,
-  	    lineStart = 0,
-  	    column;
 
-  	lineEnds = lines.map(function (line) {
+  function getLinePosition(lines, char) {
+  	var line = 0;
+  	var lineStart = 0;
+
+  	var lineEnds = lines.map(function (line) {
   		var lineEnd = lineStart + line.length + 1; // +1 for the newline
 
   		lineStart = lineEnd;
   		return lineEnd;
   	});
 
+  	lineStart = 0;
+
   	while (char >= lineEnds[line]) {
   		lineStart = lineEnds[line];
   		line += 1;
   	}
 
-  	column = char - lineStart;
+  	var column = char - lineStart;
   	return { line: line, column: column, char: char };
   }
 
   var requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
-  var TEMPLATE_VERSION = 3;function parse(source) {
+  var TEMPLATE_VERSION = 3;
+  function parse(source) {
   	var parsed, template, links, imports, scriptItem, script, styles, match, modules, i, item, result;
 
   	if (!rcu.Ractive) {
-  		throw new Error("rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()");
+  		throw new Error('rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()');
   	}
 
   	parsed = rcu.Ractive.parse(source, {
@@ -67,7 +69,7 @@
   	});
 
   	if (parsed.v !== TEMPLATE_VERSION) {
-  		throw new Error("Mismatched template version (expected " + TEMPLATE_VERSION + ", got " + parsed.v + ")! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app");
+  		throw new Error('Mismatched template version (expected ' + TEMPLATE_VERSION + ', got ' + parsed.v + ')! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app');
   	}
 
   	links = [];
@@ -82,18 +84,18 @@
   		item = template[i];
 
   		if (item && item.t === 7) {
-  			if (item.e === "link" && (item.a && item.a.rel === "ractive")) {
+  			if (item.e === 'link' && (item.a && item.a.rel === 'ractive')) {
   				links.push(template.splice(i, 1)[0]);
   			}
 
-  			if (item.e === "script" && (!item.a || !item.a.type || item.a.type === "text/javascript")) {
+  			if (item.e === 'script' && (!item.a || !item.a.type || item.a.type === 'text/javascript')) {
   				if (scriptItem) {
-  					throw new Error("You can only have one <script> tag per component file");
+  					throw new Error('You can only have one <script> tag per component file');
   				}
   				scriptItem = template.splice(i, 1)[0];
   			}
 
-  			if (item.e === "style" && (!item.a || !item.a.type || item.a.type === "text/css")) {
+  			if (item.e === 'style' && (!item.a || !item.a.type || item.a.type === 'text/css')) {
   				styles.push(template.splice(i, 1)[0]);
   			}
   		}
@@ -112,46 +114,39 @@
 
   	// Extract names from links
   	imports = links.map(function (link) {
-  		var href, name;
+  		var href = link.a.href;
+  		var name = link.a.name || getName(href);
 
-  		href = link.a.href;
-  		name = link.a.name || getName(href);
-
-  		if (typeof name !== "string") {
-  			throw new Error("Error parsing link tag");
+  		if (typeof name !== 'string') {
+  			throw new Error('Error parsing link tag');
   		}
 
-  		return {
-  			name: name,
-  			href: href
-  		};
+  		return { name: name, href: href };
   	});
 
   	result = {
-  		source: source,
+  		source: source, imports: imports, modules: modules,
   		template: parsed,
-  		imports: imports,
-  		css: styles.map(extractFragment).join(" "),
-  		script: "",
-  		modules: modules
+  		css: styles.map(extractFragment).join(' '),
+  		script: ''
   	};
 
   	// extract position information, so that we can generate source maps
   	if (scriptItem) {
-  		(function () {
-  			var contentStart, contentEnd, lines;
+  		var content = scriptItem.f[0];
 
-  			contentStart = source.indexOf(">", scriptItem.p[2]) + 1;
-  			contentEnd = contentStart + scriptItem.f[0].length;
+  		var contentStart = source.indexOf('>', scriptItem.p[2]) + 1;
 
-  			lines = source.split("\n");
+  		// we have to jump through some hoops to find contentEnd, because the contents
+  		// of the <script> tag get trimmed at parse time
+  		var contentEnd = contentStart + content.length + source.slice(contentStart).replace(content, '').indexOf('</script');
 
-  			result.scriptStart = getLinePosition(lines, contentStart);
-  			result.scriptEnd = getLinePosition(lines, contentEnd);
-  		})();
+  		var lines = source.split('\n');
 
-  		// Glue scripts together, for convenience
-  		result.script = scriptItem.f[0];
+  		result.scriptStart = getLinePosition(lines, contentStart);
+  		result.scriptEnd = getLinePosition(lines, contentEnd);
+
+  		result.script = source.slice(contentStart, contentEnd);
 
   		while (match = requirePattern.exec(result.script)) {
   			modules.push(match[1] || match[2]);
@@ -159,11 +154,16 @@
   	}
 
   	return result;
-  }function extractFragment(item) {
+  }
+
+  function extractFragment(item) {
   	return item.f;
   }
 
   var _eval, isBrowser, isNode, head, Module, base64Encode;
+
+  var SOURCE_MAPPING_URL = 'sourceMappingUrl';
+  var DATA = 'data';
 
   // This causes code to be eval'd in the global scope
   _eval = eval;
@@ -177,7 +177,16 @@
   }
 
   if ( typeof btoa === 'function' ) {
-  	base64Encode = btoa;
+  	base64Encode = function ( str ) {
+  		str = str.replace( /[^\x00-\x7F]/g, function ( char ) {
+  			var hex = char.charCodeAt( 0 ).toString( 16 );
+  			while ( hex.length < 4 ) hex = '0' + hex;
+
+  			return '\\u' + hex;
+  		});
+
+  		return btoa( str );
+  	};
   } else if ( typeof Buffer === 'function' ) {
   	base64Encode = function ( str ) {
   		return new Buffer( str, 'utf-8' ).toString( 'base64' );
@@ -190,7 +199,7 @@
   	options = options || {};
 
   	if ( options.sourceMap ) {
-  		script += '\n//# sourceMa' + 'ppingURL=data:application/json;charset=utf-8;base64,' + base64Encode( JSON.stringify( options.sourceMap ) );
+  		script += '\n//# ' + SOURCE_MAPPING_URL + '=data:application/json;charset=utf-8;base64,' + base64Encode( JSON.stringify( options.sourceMap ) );
   	}
 
   	else if ( options.sourceURL ) {
@@ -251,7 +260,7 @@
   function locateErrorUsingDataUri ( code ) {
   	var dataURI, scriptElement;
 
-  	dataURI = 'da' + 'ta:text/javascript;charset=utf-8,' + encodeURIComponent( code );
+  	dataURI = DATA + ':text/javascript;charset=utf-8,' + encodeURIComponent( code );
 
   	scriptElement = document.createElement( 'script' );
   	scriptElement.src = dataURI;
@@ -378,11 +387,12 @@
    * @returns {string}
    */
   var btoa__default = btoa__btoa;
+
   function btoa__btoa(str) {
-    return new Buffer(str).toString("base64");
+    return new Buffer(str).toString('base64');
   }
 
-  var SourceMap = function (properties) {
+  var SourceMap__SourceMap = function SourceMap__SourceMap(properties) {
   	this.version = 3;
 
   	this.file = properties.file;
@@ -392,15 +402,17 @@
   	this.mappings = properties.mappings;
   };
 
-  SourceMap.prototype = {
+  SourceMap__SourceMap.prototype = {
   	toString: function toString() {
   		return JSON.stringify(this);
   	},
 
   	toUrl: function toUrl() {
-  		return "data:application/json;charset=utf-8;base64," + btoa__default(this.toString());
+  		return 'data:application/json;charset=utf-8;base64,' + btoa__default(this.toString());
   	}
   };
+
+  var SourceMap__default = SourceMap__SourceMap;
 
   /**
    * Generates a v3 sourcemap between an original source and its built form
@@ -413,18 +425,25 @@
    * @returns {object}
    */
 
+  var alreadyWarned = false;
   function generateSourceMap(definition, options) {
   	var lines, mappings, offset;
 
   	if (!options || !options.source) {
-  		throw new Error("You must supply an options object with a `source` property to rcu.generateSourceMap()");
+  		throw new Error('You must supply an options object with a `source` property to rcu.generateSourceMap()');
+  	}
+
+  	if ('padding' in options && !alreadyWarned) {
+  		console.log('rcu: options.padding is deprecated, use options.offset instead');
+  		options.offset = options.padding;
+  		alreadyWarned = true;
   	}
 
   	// The generated code probably includes a load of module gubbins - we don't bother
   	// mapping that to anything, instead we just have a bunch of empty lines
-  	offset = new Array((options.offset || 0) + 1).join(";");
+  	offset = new Array((options.offset || 0) + 1).join(';');
 
-  	lines = definition.script.split("\n");
+  	lines = definition.script.split('\n');
   	mappings = offset + lines.map(function (line, i) {
   		if (i === 0) {
   			// first mapping points to code immediately following opening <script> tag
@@ -435,10 +454,10 @@
   			return encode([0, 0, 1, -definition.scriptStart.column]);
   		}
 
-  		return "AACA"; // equates to [ 0, 0, 1, 0 ];
-  	}).join(";");
+  		return 'AACA'; // equates to [ 0, 0, 1, 0 ];
+  	}).join(';');
 
-  	return new SourceMap({
+  	return new SourceMap__default({
   		file: options.file,
   		sources: [options.source],
   		sourcesContent: [definition.source],
@@ -453,7 +472,7 @@
   	config = config || {};
 
   	// Implementation-specific config
-  	url = config.url || "";
+  	url = config.url || '';
   	loadImport = config.loadImport;
   	loadModule = config.loadModule;
 
@@ -476,7 +495,7 @@
   			});
 
   			try {
-  				factory = new eval2.Function("component", "require", "Ractive", definition.script, {
+  				factory = new eval2.Function('component', 'require', 'Ractive', definition.script, {
   					sourceMap: sourceMap
   				});
 
@@ -484,7 +503,7 @@
   				factory(component, config.require, rcu.Ractive);
   				exports = component.exports;
 
-  				if (typeof exports === "object") {
+  				if (typeof exports === 'object') {
   					for (prop in exports) {
   						if (exports.hasOwnProperty(prop)) {
   							options[prop] = exports[prop];
@@ -528,7 +547,7 @@
 
   		if (definition.imports.length) {
   			if (!loadImport) {
-  				throw new Error("Component definition includes imports (e.g. `<link rel=\"ractive\" href=\"" + definition.imports[0].href + "\">`) but no loadImport method was passed to rcu.make()");
+  				throw new Error('Component definition includes imports (e.g. `<link rel="ractive" href="' + definition.imports[0].href + '">`) but no loadImport method was passed to rcu.make()');
   			}
 
   			imports = {};
@@ -559,31 +578,32 @@
   }
 
   var resolve = resolvePath;
+
   function resolvePath(relativePath, base) {
   	var pathParts, relativePathParts, part;
 
   	// If we've got an absolute path, or base is '', return
   	// relativePath
-  	if (!base || relativePath.charAt(0) === "/") {
+  	if (!base || relativePath.charAt(0) === '/') {
   		return relativePath;
   	}
 
   	// 'foo/bar/baz.html' -> ['foo', 'bar', 'baz.html']
-  	pathParts = (base || "").split("/");
-  	relativePathParts = relativePath.split("/");
+  	pathParts = (base || '').split('/');
+  	relativePathParts = relativePath.split('/');
 
   	// ['foo', 'bar', 'baz.html'] -> ['foo', 'bar']
   	pathParts.pop();
 
   	while (part = relativePathParts.shift()) {
-  		if (part === "..") {
+  		if (part === '..') {
   			pathParts.pop();
-  		} else if (part !== ".") {
+  		} else if (part !== '.') {
   			pathParts.push(part);
   		}
   	}
 
-  	return pathParts.join("/");
+  	return pathParts.join('/');
   }
 
   var rcu = {
