@@ -4,7 +4,7 @@ var resolve = require( 'resolve' );
 var Promise = require( 'es6-promise' ).Promise;
 
 module.exports = gobble( 'src' )
-.transform( '6to5', {
+.transform( 'babel', {
 	blacklist: [ 'es6.modules', 'useStrict' ],
 	sourceMap: false
 })
