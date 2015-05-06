@@ -7,7 +7,7 @@
 	"modules": [ "foo" ],
 	"scriptStart": {
 		"line": 0,
-		"column": -40,
+		"column": 8,
 		"char": 8
 	},
 	"scriptEnd": {
