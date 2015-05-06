@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.1
+
+* Fix `rcu.generateSourceMap` bug resulting in incorrect sourcemaps
+
 ## 0.4.0
 
 * Update expected template version to 3, to match Ractive 0.7.0
