@@ -63,47 +63,40 @@ export default function parse ( source ) {
 	}
 
 	// Extract names from links
-	imports = links.map( function ( link ) {
-		var href, name;
-
-		href = link.a.href;
-		name = link.a.name || getName( href );
+	imports = links.map( link => {
+		const href = link.a.href;
+		const name = link.a.name || getName( href );
 
 		if ( typeof name !== 'string' ) {
 			throw new Error( 'Error parsing link tag' );
 		}
 
-		return {
-			name: name,
-			href: href
-		};
+		return { name, href };
 	});
 
 	result = {
-		source: source,
+		source, imports, modules,
 		template: parsed,
-		imports: imports,
 		css: styles.map( extractFragment ).join( ' ' ),
-		script: '',
-		modules: modules
+		script: ''
 	};
 
 	// extract position information, so that we can generate source maps
 	if ( scriptItem ) {
-		(function () {
-			var contentStart, contentEnd, lines;
+		const content = scriptItem.f[0];
 
-			contentStart = source.indexOf( '>', scriptItem.p[2] ) + 1;
-			contentEnd = contentStart + scriptItem.f[0].length;
+		const contentStart = source.indexOf( '>', scriptItem.p[2] ) + 1;
 
-			lines = source.split( '\n' );
+		// we have to jump through some hoops to find contentEnd, because the contents
+		// of the <script> tag get trimmed at parse time
+		const contentEnd = contentStart + content.length + source.slice( contentStart ).replace( content, '' ).indexOf( '</script' );
 
-			result.scriptStart = getLinePosition( lines, contentStart );
-			result.scriptEnd = getLinePosition( lines, contentEnd );
-		}());
+		const lines = source.split( '\n' );
 
-		// Glue scripts together, for convenience
-		result.script = scriptItem.f[0];
+		result.scriptStart = getLinePosition( lines, contentStart );
+		result.scriptEnd = getLinePosition( lines, contentEnd );
+
+		result.script = source.slice( contentStart, contentEnd );
 
 		while ( match = requirePattern.exec( result.script ) ) {
 			modules.push( match[1] || match[2] );

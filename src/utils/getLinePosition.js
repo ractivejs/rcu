@@ -10,20 +10,23 @@
      * @property {number} char - the character index that was passed in
  */
 export default function getLinePosition ( lines, char ) {
-	var lineEnds, line = 0, lineStart = 0, column;
+	let line = 0;
+	let lineStart = 0;
 
-	lineEnds = lines.map( line => {
+	const lineEnds = lines.map( line => {
 		var lineEnd = lineStart + line.length + 1; // +1 for the newline
 
 		lineStart = lineEnd;
 		return lineEnd;
 	});
 
+	lineStart = 0;
+
 	while ( char >= lineEnds[ line ] ) {
 		lineStart = lineEnds[ line ];
 		line += 1;
 	}
 
-	column = char - lineStart;
+	const column = char - lineStart;
 	return { line, column, char };
 }
