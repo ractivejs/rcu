@@ -433,10 +433,13 @@
   		throw new Error('You must supply an options object with a `source` property to rcu.generateSourceMap()');
   	}
 
-  	if ('padding' in options && !alreadyWarned) {
-  		console.log('rcu: options.padding is deprecated, use options.offset instead');
+  	if ('padding' in options) {
   		options.offset = options.padding;
-  		alreadyWarned = true;
+
+  		if (!alreadyWarned) {
+  			console.log('rcu: options.padding is deprecated, use options.offset instead');
+  			alreadyWarned = true;
+  		}
   	}
 
   	// The generated code probably includes a load of module gubbins - we don't bother

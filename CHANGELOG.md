@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2
+
+* Fix schoolboy error
+
 ## 0.4.1
 
 * Fix `rcu.generateSourceMap` bug resulting in incorrect sourcemaps
