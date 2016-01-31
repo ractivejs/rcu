@@ -1,7 +1,7 @@
 import eval2 from 'eval2';
-import rcu from './rcu';
-import parse from './parse';
-import generateSourceMap from './generateSourceMap';
+import { Ractive } from './init.js';
+import parse from './parse.js';
+import generateSourceMap from './generateSourceMap.js';
 
 export default function make ( source, config, callback, errback ) {
 	var definition,
@@ -46,7 +46,7 @@ export default function make ( source, config, callback, errback ) {
 				});
 
 				component = {};
-				factory( component, config.require, rcu.Ractive );
+				factory( component, config.require, Ractive );
 				exports = component.exports;
 
 				if ( typeof exports === 'object' ) {
@@ -57,7 +57,7 @@ export default function make ( source, config, callback, errback ) {
 					}
 				}
 
-				Component = rcu.Ractive.extend( options );
+				Component = Ractive.extend( options );
 			} catch ( err ) {
 				errback( err );
 				return;
@@ -65,7 +65,7 @@ export default function make ( source, config, callback, errback ) {
 
 			callback( Component );
 		} else {
-			Component = rcu.Ractive.extend( options );
+			Component = Ractive.extend( options );
 			callback( Component );
 		}
 	};

@@ -1,6 +1,6 @@
-import rcu from './rcu';
-import getName from './getName';
-import getLinePosition from './utils/getLinePosition';
+import { Ractive } from './init.js';
+import getName from './getName.js';
+import getLinePosition from './utils/getLinePosition.js';
 
 var requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
 var TEMPLATE_VERSION = 3;
@@ -8,11 +8,11 @@ var TEMPLATE_VERSION = 3;
 export default function parse ( source ) {
 	var parsed, template, links, imports, scriptItem, styles, match, modules, i, item, result;
 
-	if ( !rcu.Ractive ) {
+	if ( !Ractive ) {
 		throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );
 	}
 
-	parsed = rcu.Ractive.parse( source, {
+	parsed = Ractive.parse( source, {
 		noStringify: true,
 		interpolate: { script: false, style: false },
 		includeLinePositions: true

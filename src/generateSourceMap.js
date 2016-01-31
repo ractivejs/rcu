@@ -1,5 +1,5 @@
 import { encode } from 'vlq';
-import SourceMap from './utils/SourceMap';
+import SourceMap from './utils/SourceMap.js';
 
 let alreadyWarned = false;
 

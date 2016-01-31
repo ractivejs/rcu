@@ -1,6 +1,4 @@
 export default function resolvePath ( relativePath, base ) {
-	var pathParts, relativePathParts, part;
-
 	// If we've got an absolute path, or base is '', return
 	// relativePath
 	if ( !base || relativePath.charAt( 0 ) === '/' ) {
@@ -8,11 +6,13 @@ export default function resolvePath ( relativePath, base ) {
 	}
 
 	// 'foo/bar/baz.html' -> ['foo', 'bar', 'baz.html']
-	pathParts = ( base || '' ).split( '/' );
-	relativePathParts = relativePath.split( '/' );
+	let pathParts = ( base || '' ).split( '/' );
+	let relativePathParts = relativePath.split( '/' );
 
 	// ['foo', 'bar', 'baz.html'] -> ['foo', 'bar']
 	pathParts.pop();
+
+	let part;
 
 	while ( part = relativePathParts.shift() ) {
 		if ( part === '..' ) {
