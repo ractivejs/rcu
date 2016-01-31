@@ -1,16 +1,8 @@
 var assert = require( 'assert' );
 var sander = require( 'sander' );
-var Promise = sander.Promise;
+var rcu = require( '../rcu' );
 
 describe( 'rcu.parse()', function () {
-	var rcu;
-
-	before( function () {
-		return require( '../utils/build' )().then( function ( lib ) {
-			rcu = lib;
-		});
-	});
-
 	sander.readdirSync( __dirname, 'input' ).forEach( function ( input ) {
 		var name = input.replace( '.html', '' );
 		var output = name + '.json';
@@ -26,4 +18,3 @@ describe( 'rcu.parse()', function () {
 		});
 	});
 });
-

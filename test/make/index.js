@@ -1,18 +1,12 @@
 var assert = require( 'assert' );
 var sander = require( 'sander' );
 var Promise = sander.Promise;
+var rcu = require( '../rcu' );
 
 describe( 'rcu.make()', function () {
-	var rcu;
-
-	before( function () {
-		return require( '../utils/build' )().then( function ( lib ) {
-			rcu = lib;
-		});
-	});
-
 	it( 'creates a simple component', function () {
 		return sander.readFile( __dirname, 'input/simple.html' ).then( String ).then( function ( definition ) {
+			console.log( definition )
 			// TODO rcu.make() should return a promise?
 			return new Promise( function ( fulfil, reject ) {
 				rcu.make( definition, {}, function ( Component ) {
@@ -29,4 +23,3 @@ describe( 'rcu.make()', function () {
 		});
 	});
 });
-

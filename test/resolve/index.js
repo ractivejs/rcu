@@ -1,15 +1,8 @@
 var assert = require( 'assert' );
+var rcu = require( '../rcu' );
 
 describe( 'rcu.resolve()', function () {
-	var rcu, tests;
-
-	before( function () {
-		return require( '../utils/build' )().then( function ( lib ) {
-			rcu = lib;
-		});
-	});
-
-	tests = [
+	var tests = [
 		{
 			base: '',
 			path: 'foo.html',
@@ -54,5 +47,3 @@ describe( 'rcu.resolve()', function () {
 		});
 	});
 });
-
-

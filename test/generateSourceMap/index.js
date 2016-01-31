@@ -1,15 +1,8 @@
 var assert = require( 'assert' );
 var sander = require( 'sander' );
+var rcu = require( '../rcu' );
 
 describe( 'rcu.generateSourceMap()', function () {
-	var rcu;
-
-	before( function () {
-		return require( '../utils/build' )().then( function ( lib ) {
-			rcu = lib;
-		});
-	});
-
 	it( 'generates a sourcemap', function () {
 		return sander.readFile( __dirname, 'samples/foo.html' ).then( String ).then( function ( foo ) {
 			var definition = rcu.parse( foo );
@@ -81,4 +74,3 @@ describe( 'rcu.generateSourceMap()', function () {
 		});
 	});
 });
-

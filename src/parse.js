@@ -6,7 +6,7 @@ var requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
 var TEMPLATE_VERSION = 3;
 
 export default function parse ( source ) {
-	var parsed, template, links, imports, scriptItem, script, styles, match, modules, i, item, result;
+	var parsed, template, links, imports, scriptItem, styles, match, modules, i, item, result;
 
 	if ( !rcu.Ractive ) {
 		throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );

@@ -24,7 +24,7 @@ export default function generateSourceMap ( definition, options ) {
 		options.offset = options.padding;
 
 		if ( !alreadyWarned ) {
-			console.log( 'rcu: options.padding is deprecated, use options.offset instead' );
+			console.log( 'rcu: options.padding is deprecated, use options.offset instead' ); // eslint-disable-line no-console
 			alreadyWarned = true;
 		}
 	}
