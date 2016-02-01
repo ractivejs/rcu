@@ -1,6 +1,6 @@
 {
   "name": "rcu",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "description": "Utilities for implementing Ractive.js component loaders",
   "license": "MIT",
   "repository": "https://github.com/ractivejs/rcu",
@@ -17,7 +17,8 @@
     "resolve": "^1.1.0",
     "rollup-plugin-babel": "^2.3.9",
     "rollup-plugin-npm": "^1.4.0",
-    "sander": "^0.4.0"
+    "sander": "^0.4.0",
+    "source-map": "^0.5.3"
   },
   "main": "dist/rcu.umd.js",
   "jsnext:main": "dist/rcu.es6.js",
@@ -30,5 +31,8 @@
     "lint": "eslint src",
     "prepublish": "npm run lint && rm -rf dist && npm test && npm run build:es6"
   },
-  "files": [ "dist", "README.md" ]
+  "files": [
+    "dist",
+    "README.md"
+  ]
 }

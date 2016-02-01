@@ -1,5 +1,9 @@
 # rcu changelog
 
+## 0.6.1
+
+* Add missing development dependency
+
 ## 0.6.0
 
 * `generateSourceMap` generates a hires (character-accurate) sourcemap by default
