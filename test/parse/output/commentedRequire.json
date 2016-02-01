@@ -1,0 +1,18 @@
+{
+	"source": "<h1>Hello world!</h1>\n\n<script>\n\t// var foo = require( 'foo' );\n</script>\n",
+	"template": {"v":3,"t":[{"t":7,"e":"h1","f":["Hello world!"],"p":[1,1,0]}]},
+	"script": "\n\t// var foo = require( 'foo' );\n",
+	"scriptEnd": {
+		"char": 64,
+		"column": 0,
+		"line": 4
+	},
+	"scriptStart": {
+		"char": 31,
+		"column": 8,
+		"line": 2
+	},
+	"css": "",
+	"imports": [],
+	"modules": []
+}
