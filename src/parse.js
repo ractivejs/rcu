@@ -78,7 +78,7 @@ export default function parse ( source ) {
 	};
 
 	// extract position information, so that we can generate source maps
-	if ( scriptItem ) {
+	if ( scriptItem && scriptItem.f ) {
 		const content = scriptItem.f[0];
 
 		const contentStart = source.indexOf( '>', scriptItem.p[2] ) + 1;
