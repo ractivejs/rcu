@@ -1,4 +1,13 @@
-# Changelog
+# rcu changelog
+
+## 0.5.1
+
+* Include correct files in package...
+
+## 0.5.0
+
+* Allow empty `<script>` tags ([#14](https://github.com/ractivejs/rcu/issues/14))
+* Extensive tidying up
 
 ## 0.4.2
 
