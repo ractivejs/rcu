@@ -1,3 +1,4 @@
+import { match } from 'tippex';
 import { Ractive } from './init.js';
 import getName from './getName.js';
 import getLinePosition from './utils/getLinePosition.js';
@@ -94,10 +95,9 @@ export default function parse ( source ) {
 
 		result.script = source.slice( contentStart, contentEnd );
 
-		let match;
-		while ( match = requirePattern.exec( result.script ) ) {
-			modules.push( match[1] || match[2] );
-		}
+		match( result.script, requirePattern, ( match, doubleQuoted, singleQuoted ) => {
+			modules.push( doubleQuoted || singleQuoted );
+		});
 	}
 
 	return result;
