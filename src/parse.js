@@ -2,36 +2,36 @@ import { Ractive } from './init.js';
 import getName from './getName.js';
 import getLinePosition from './utils/getLinePosition.js';
 
-var requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
-var TEMPLATE_VERSION = 3;
+const requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
+const TEMPLATE_VERSION = 3;
 
 export default function parse ( source ) {
-	var parsed, template, links, imports, scriptItem, styles, match, modules, i, item, result;
-
 	if ( !Ractive ) {
 		throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );
 	}
 
-	parsed = Ractive.parse( source, {
+	const parsed = Ractive.parse( source, {
 		noStringify: true,
 		interpolate: { script: false, style: false },
 		includeLinePositions: true
 	});
 
 	if ( parsed.v !== TEMPLATE_VERSION ) {
-		throw new Error( 'Mismatched template version (expected ' + TEMPLATE_VERSION + ', got ' + parsed.v + ')! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app' );
+		throw new Error( `Mismatched template version (expected ${TEMPLATE_VERSION}, got ${parsed.v})! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app` );
 	}
 
-	links = [];
-	styles = [];
-	modules = [];
+	let links = [];
+	let styles = [];
+	let modules = [];
 
 	// Extract certain top-level nodes from the template. We work backwards
 	// so that we can easily splice them out as we go
-	template = parsed.t;
-	i = template.length;
+	let template = parsed.t;
+	let i = template.length;
+	let scriptItem;
+
 	while ( i-- ) {
-		item = template[i];
+		const item = template[i];
 
 		if ( item && item.t === 7 ) {
 			if ( item.e === 'link' && ( item.a && item.a.rel === 'ractive' ) ) {
@@ -53,17 +53,13 @@ export default function parse ( source ) {
 
 	// Clean up template - trim whitespace left over from the removal
 	// of <link>, <style> and <script> tags from start...
-	while ( /^\s*$/.test( template[0] ) ) {
-		template.shift();
-	}
+	while ( /^\s*$/.test( template[0] ) ) template.shift();
 
 	// ...and end
-	while ( /^\s*$/.test( template[ template.length - 1 ] ) ) {
-		template.pop();
-	}
+	while ( /^\s*$/.test( template[ template.length - 1 ] ) ) template.pop();
 
 	// Extract names from links
-	imports = links.map( link => {
+	const imports = links.map( link => {
 		const href = link.a.href;
 		const name = link.a.name || getName( href );
 
@@ -74,10 +70,10 @@ export default function parse ( source ) {
 		return { name, href };
 	});
 
-	result = {
+	let result = {
 		source, imports, modules,
 		template: parsed,
-		css: styles.map( extractFragment ).join( ' ' ),
+		css: styles.map( item => item.f ).join( ' ' ),
 		script: ''
 	};
 
@@ -98,14 +94,11 @@ export default function parse ( source ) {
 
 		result.script = source.slice( contentStart, contentEnd );
 
+		let match;
 		while ( match = requirePattern.exec( result.script ) ) {
 			modules.push( match[1] || match[2] );
 		}
 	}
 
 	return result;
-}
-
-function extractFragment ( item ) {
-	return item.f;
 }

@@ -14,8 +14,6 @@ let alreadyWarned = false;
  * @returns {object}
  */
 export default function generateSourceMap ( definition, options ) {
-	var lines, mappings, offset;
-
 	if ( !options || !options.source ) {
 		throw new Error( 'You must supply an options object with a `source` property to rcu.generateSourceMap()' );
 	}
@@ -31,10 +29,10 @@ export default function generateSourceMap ( definition, options ) {
 
 	// The generated code probably includes a load of module gubbins - we don't bother
 	// mapping that to anything, instead we just have a bunch of empty lines
-	offset = new Array( ( options.offset || 0 ) + 1 ).join( ';' );
+	const offset = new Array( ( options.offset || 0 ) + 1 ).join( ';' );
 
-	lines = definition.script.split( '\n' );
-	mappings = offset + lines.map( ( line, i ) => {
+	const lines = definition.script.split( '\n' );
+	const mappings = offset + lines.map( ( line, i ) => {
 		if ( i === 0 ) {
 			// first mapping points to code immediately following opening <script> tag
 			return encode([ 0, 0, definition.scriptStart.line, definition.scriptStart.column ]);

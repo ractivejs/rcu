@@ -14,10 +14,8 @@ export default function getLinePosition ( lines, char ) {
 	let lineStart = 0;
 
 	const lineEnds = lines.map( line => {
-		var lineEnd = lineStart + line.length + 1; // +1 for the newline
-
-		lineStart = lineEnd;
-		return lineEnd;
+		lineStart += line.length + 1; // +1 for the newline
+		return lineStart;
 	});
 
 	lineStart = 0;

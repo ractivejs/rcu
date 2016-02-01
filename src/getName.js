@@ -1,13 +1,9 @@
 export default function getName ( path ) {
-	var pathParts, filename, lastIndex;
+	let pathParts = path.split( '/' );
+	let filename = pathParts.pop();
 
-	pathParts = path.split( '/' );
-	filename = pathParts.pop();
-
-	lastIndex = filename.lastIndexOf( '.' );
-	if ( lastIndex !== -1 ) {
-		filename = filename.substr( 0, lastIndex );
-	}
+	const lastIndex = filename.lastIndexOf( '.' );
+	if ( lastIndex !== -1 ) filename = filename.substr( 0, lastIndex );
 
 	return filename;
 }

@@ -1,6 +1,6 @@
 import btoa from './btoa.js';
 
-var SourceMap = function ( properties ) {
+export default function SourceMap ( properties ) {
 	this.version = 3;
 
 	this.file           = properties.file;
@@ -8,7 +8,7 @@ var SourceMap = function ( properties ) {
 	this.sourcesContent = properties.sourcesContent;
 	this.names          = properties.names;
 	this.mappings       = properties.mappings;
-};
+}
 
 SourceMap.prototype = {
 	toString () {
@@ -19,5 +19,3 @@ SourceMap.prototype = {
 		return 'data:application/json;charset=utf-8;base64,' + btoa( this.toString() );
 	}
 };
-
-export default SourceMap;

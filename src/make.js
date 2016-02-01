@@ -4,35 +4,26 @@ import parse from './parse.js';
 import generateSourceMap from './generateSourceMap.js';
 
 export default function make ( source, config, callback, errback ) {
-	var definition,
-		url,
-		createComponent,
-		loadImport,
-		imports,
-		loadModule,
-		modules,
-		remainingDependencies,
-		onloaded,
-		ready;
-
 	config = config || {};
 
 	// Implementation-specific config
-	url        = config.url || '';
-	loadImport = config.loadImport;
-	loadModule = config.loadModule;
+	const url        = config.url || '';
+	const loadImport = config.loadImport;
+	const loadModule = config.loadModule;
 
-	definition = parse( source );
+	const definition = parse( source );
 
-	createComponent = function () {
-		var options, Component, factory, component, exports, prop;
+	let imports = {};
 
-		options = {
+	function createComponent () {
+		let options = {
 			template: definition.template,
 			partials: definition.partials,
 			css: definition.css,
 			components: imports
 		};
+
+		let Component;
 
 		if ( definition.script ) {
 			let sourceMap = generateSourceMap( definition, {
@@ -41,16 +32,16 @@ export default function make ( source, config, callback, errback ) {
 			});
 
 			try {
-				factory = new eval2.Function( 'component', 'require', 'Ractive', definition.script, {
+				const factory = new eval2.Function( 'component', 'require', 'Ractive', definition.script, {
 					sourceMap
 				});
 
-				component = {};
+				let component = {};
 				factory( component, config.require, Ractive );
-				exports = component.exports;
+				let exports = component.exports;
 
 				if ( typeof exports === 'object' ) {
-					for ( prop in exports ) {
+					for ( let prop in exports ) {
 						if ( exports.hasOwnProperty( prop ) ) {
 							options[ prop ] = exports[ prop ];
 						}
@@ -68,7 +59,7 @@ export default function make ( source, config, callback, errback ) {
 			Component = Ractive.extend( options );
 			callback( Component );
 		}
-	};
+	}
 
 	// If the definition includes sub-components e.g.
 	//     <link rel='ractive' href='foo.html'>
@@ -78,25 +69,24 @@ export default function make ( source, config, callback, errback ) {
 	//
 	// In some environments (e.g. AMD) the same goes for modules, which
 	// most be loaded before the script can execute
-	remainingDependencies = ( definition.imports.length + ( loadModule ? definition.modules.length : 0 ) );
+	let remainingDependencies = ( definition.imports.length + ( loadModule ? definition.modules.length : 0 ) );
+	let ready = false;
 
 	if ( remainingDependencies ) {
-		onloaded = function () {
+		const onloaded = () => {
 			if ( !--remainingDependencies ) {
 				if ( ready ) {
 					createComponent();
 				} else {
-					setTimeout( createComponent, 0 ); // cheap way to enforce asynchrony for a non-Zalgoesque API
+					setTimeout( createComponent ); // cheap way to enforce asynchrony for a non-Zalgoesque API
 				}
 			}
 		};
 
 		if ( definition.imports.length ) {
 			if ( !loadImport ) {
-				throw new Error( 'Component definition includes imports (e.g. `<link rel="ractive" href="' + definition.imports[0].href + '">`) but no loadImport method was passed to rcu.make()' );
+				throw new Error( `Component definition includes imports (e.g. <link rel="ractive" href="${definition.imports[0].href}">) but no loadImport method was passed to rcu.make()` );
 			}
-
-			imports = {};
 
 			definition.imports.forEach( function ( toImport ) {
 				loadImport( toImport.name, toImport.href, url, function ( Component ) {
@@ -107,13 +97,8 @@ export default function make ( source, config, callback, errback ) {
 		}
 
 		if ( loadModule && definition.modules.length ) {
-			modules = {};
-
-			definition.modules.forEach( function ( name ) {
-				loadModule( name, name, url, function ( Component ) {
-					modules[ name ] = Component;
-					onloaded();
-				});
+			definition.modules.forEach( name => {
+				loadModule( name, name, url, onloaded );
 			});
 		}
 	} else {
