@@ -1,5 +1,10 @@
 # rcu changelog
 
+## 0.6.0
+
+* `generateSourceMap` generates a hires (character-accurate) sourcemap by default
+* Robust dependency detection ([#4](https://github.com/ractivejs/rcu/issues/4))
+
 ## 0.5.1
 
 * Include correct files in package...
