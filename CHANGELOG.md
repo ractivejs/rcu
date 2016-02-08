@@ -1,5 +1,9 @@
 # rcu changelog
 
+## 0.6.2
+
+* Require statements are deduplicated ([#18](https://github.com/ractivejs/rcu/issues/18))
+
 ## 0.6.1
 
 * Add missing development dependency
