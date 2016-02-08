@@ -96,7 +96,8 @@ export default function parse ( source ) {
 		result.script = source.slice( contentStart, contentEnd );
 
 		match( result.script, requirePattern, ( match, doubleQuoted, singleQuoted ) => {
-			modules.push( doubleQuoted || singleQuoted );
+			const source = doubleQuoted || singleQuoted;
+			if ( !~modules.indexOf( source ) ) modules.push( source );
 		});
 	}
 
