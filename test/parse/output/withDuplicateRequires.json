@@ -1,0 +1,10 @@
+{
+	"source": "<script>\n\tvar foo = require('./x').foo;\n\tvar bar = require('./x').bar;\n</script>\n",
+	"template": {"v":3,"t":[]},
+	"script": "\n\tvar foo = require('./x').foo;\n\tvar bar = require('./x').bar;\n",
+	"scriptStart": { "line": 0, "column": 8, "char": 8 },
+	"scriptEnd": { "line": 3, "column": 0, "char": 71 },
+	"css": "",
+	"imports": [],
+	"modules": [ "./x" ]
+}
