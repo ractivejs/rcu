@@ -1,4 +1,4 @@
-import { match } from 'tippex';
+import { match, replace } from 'tippex';
 import { Ractive } from './init.js';
 import getName from './getName.js';
 import getLinePosition from './utils/getLinePosition.js';
@@ -93,7 +93,9 @@ export default function parse ( source ) {
 		result.scriptStart = getLinePosition( lines, contentStart );
 		result.scriptEnd = getLinePosition( lines, contentEnd );
 
-		result.script = source.slice( contentStart, contentEnd );
+		const script = source.slice( contentStart, contentEnd );
+
+		result.script = replace( script, /export\s+default\s+/, () => 'component.exports = ' );
 
 		match( result.script, requirePattern, ( match, doubleQuoted, singleQuoted ) => {
 			const source = doubleQuoted || singleQuoted;
