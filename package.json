@@ -6,7 +6,7 @@
   "repository": "https://github.com/ractivejs/rcu",
   "dependencies": {
     "eval2": "^0.3.0",
-    "tippex": "^1.1.0",
+    "tippex": "^1.2.0",
     "vlq": "^0.2.0"
   },
   "devDependencies": {
