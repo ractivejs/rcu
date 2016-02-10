@@ -3,7 +3,8 @@ import { Ractive } from './init.js';
 import getName from './getName.js';
 import getLinePosition from './utils/getLinePosition.js';
 
-const requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
+const requirePattern = /\brequire\s*\(\s*[\'"]([^"\']+)["\']\s*\)/g;
+const importPattern = /\bimport\s+(?:.+\s+from\s+)?[\'"]([^"\']+)["\']/g; // https://gist.github.com/pilwon/ff55634a29bb4456e0dd
 const TEMPLATE_VERSION = 3;
 
 export default function parse ( source ) {
@@ -97,10 +98,12 @@ export default function parse ( source ) {
 
 		result.script = replace( script, /export\s+default\s+/, () => 'component.exports = ' );
 
-		match( result.script, requirePattern, ( match, doubleQuoted, singleQuoted ) => {
-			const source = doubleQuoted || singleQuoted;
+		const addUniqueSource = ( match, source ) => {
 			if ( !~modules.indexOf( source ) ) modules.push( source );
-		});
+		};
+
+		match( result.script, requirePattern, addUniqueSource );
+		match( result.script, importPattern, addUniqueSource );
 	}
 
 	return result;
