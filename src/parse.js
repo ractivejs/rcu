@@ -1,4 +1,3 @@
-import { match } from 'tippex';
 import { Ractive } from './init.js';
 import getName from './getName.js';
 import getLinePosition from './utils/getLinePosition.js';
@@ -95,9 +94,20 @@ export default function parse ( source ) {
 
 		result.script = source.slice( contentStart, contentEnd );
 
-		match( result.script, requirePattern, ( match, doubleQuoted, singleQuoted ) => {
+		// replace comments with spaces (perserves line numbers while removing commented out requires)
+		let len, cleanScript = result.script;
+		do {
+			len = cleanScript.length;
+			cleanScript = cleanScript.replace( /\/\/(.*?)\n/, '\n', 'm' );
+			cleanScript = cleanScript.replace( /\/\*(.*?)\*\//, ( _, str ) => {
+				return str.split('\n').map( (str) => ' '.repeat( str.length ) ).join( '\n' );
+			}, 'm' );
+		} while ( len !== cleanScript.length );
+
+		cleanScript.replace( requirePattern, ( match, doubleQuoted, singleQuoted ) => {
 			const source = doubleQuoted || singleQuoted;
 			if ( !~modules.indexOf( source ) ) modules.push( source );
+			return match;
 		});
 	}
 
