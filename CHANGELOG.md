@@ -1,5 +1,9 @@
 # rcu changelog
 
+## 0.7.0
+
+* Update dependencies (particularly tippex)
+
 ## 0.6.2
 
 * Require statements are deduplicated ([#18](https://github.com/ractivejs/rcu/issues/18))
