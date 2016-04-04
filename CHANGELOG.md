@@ -1,5 +1,9 @@
 # rcu changelog
 
+## 0.8.0
+
+* Move bundled `dependencies` to `devDependencies` ([#24](https://github.com/ractivejs/rcu/issues/24))
+
 ## 0.7.0
 
 * Update dependencies (particularly tippex)
