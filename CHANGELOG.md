@@ -1,5 +1,10 @@
 # rcu changelog
 
+## 0.8.2
+
+* Update build process to use Bublé
+* Update dependencies
+
 ## 0.8.1
 
 * Tidy up build slightly
