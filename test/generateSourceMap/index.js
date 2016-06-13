@@ -82,8 +82,7 @@ describe( 'rcu.generateSourceMap()', function () {
 			var warned = 0;
 
 			global.console.warn = function ( msg ) {
-				assert.ok( /deprecated/.test( msg ) );
-				warned += 1;
+				if ( /deprecated/.test( msg ) ) warned += 1;
 			};
 
 			function go () {

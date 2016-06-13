@@ -12,6 +12,7 @@ describe( 'rcu.parse()', function () {
 				var actual = rcu.parse( definition );
 
 				return sander.readFile( __dirname, 'output', output ).then( String ).then( JSON.parse ).then( function ( expected ) {
+					if ( expected.template ) expected.template.v = actual.template.v;
 					assert.deepEqual( actual, expected );
 				});
 			});

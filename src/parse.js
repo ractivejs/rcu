@@ -4,7 +4,7 @@ import getName from './getName.js';
 import getLinePosition from './utils/getLinePosition.js';
 
 const requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
-const TEMPLATE_VERSION = 3;
+const TEMPLATE_VERSION = 4;
 
 export default function parse ( source ) {
 	if ( !Ractive ) {
@@ -18,7 +18,7 @@ export default function parse ( source ) {
 	});
 
 	if ( parsed.v !== TEMPLATE_VERSION ) {
-		throw new Error( `Mismatched template version (expected ${TEMPLATE_VERSION}, got ${parsed.v})! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app` );
+		console.warn( `Mismatched template version (expected ${TEMPLATE_VERSION}, got ${parsed.v})! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app` );
 	}
 
 	let links = [];
@@ -35,18 +35,20 @@ export default function parse ( source ) {
 		const item = template[i];
 
 		if ( item && item.t === 7 ) {
-			if ( item.e === 'link' && ( item.a && item.a.rel === 'ractive' ) ) {
+			let attr = getAttr( 'rel', item );
+			if ( item.e === 'link' && attr === 'ractive' ) {
 				links.push( template.splice( i, 1 )[0] );
 			}
 
-			if ( item.e === 'script' && ( !item.a || !item.a.type || item.a.type === 'text/javascript' ) ) {
+			attr = getAttr( 'type', item );
+			if ( item.e === 'script' && ( !attr || attr === 'text/javascript' ) ) {
 				if ( scriptItem ) {
 					throw new Error( 'You can only have one <script> tag per component file' );
 				}
 				scriptItem = template.splice( i, 1 )[0];
 			}
 
-			if ( item.e === 'style' && ( !item.a || !item.a.type || item.a.type === 'text/css' ) ) {
+			if ( item.e === 'style' && ( !attr || attr === 'text/css' ) ) {
 				styles.push( template.splice( i, 1 )[0] );
 			}
 		}
@@ -61,8 +63,8 @@ export default function parse ( source ) {
 
 	// Extract names from links
 	const imports = links.map( link => {
-		const href = link.a.href;
-		const name = link.a.name || getName( href );
+		const href = getAttr( 'href', link );
+		const name = getAttr( 'name', link ) || getName( href );
 
 		if ( typeof name !== 'string' ) {
 			throw new Error( 'Error parsing link tag' );
@@ -102,4 +104,18 @@ export default function parse ( source ) {
 	}
 
 	return result;
+}
+
+function getAttr ( name, node ) {
+	if ( node.a && node.a[name] ) return node.a[name];
+	else if ( node.m ) {
+		let i = node.m.length;
+		while ( i-- ) {
+			const a = node.m[i];
+			// plain attribute
+			if ( a.t === 13 ) {
+				if ( a.n === name ) return a.f;
+			}
+		}
+	}
 }
