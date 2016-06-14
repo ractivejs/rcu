@@ -18,7 +18,7 @@ export default function parse ( source ) {
 	});
 
 	if ( parsed.v !== TEMPLATE_VERSION ) {
-		console.warn( `Mismatched template version (expected ${TEMPLATE_VERSION}, got ${parsed.v})! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app` );
+		console.warn( `Mismatched template version (expected ${TEMPLATE_VERSION}, got ${parsed.v})! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app` ); // eslint-disable-line no-console
 	}
 
 	let links = [];
