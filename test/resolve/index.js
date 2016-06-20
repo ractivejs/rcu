@@ -37,6 +37,12 @@ describe( 'rcu.resolve()', function () {
 			base: 'components/foo.html',
 			path: '../bar.html',
 			expected: 'bar.html'
+		},
+
+		{
+			base: 'components/foo.html',
+			path: 'blob:https://site.example/deadbeef-dead-beef-dead-deaddeadbeef',
+			expected: 'blob:https://site.example/deadbeef-dead-beef-dead-deaddeadbeef'
 		}
 	];
 
