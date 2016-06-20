@@ -1,0 +1,2 @@
+# Use Unix EOLs by default even on Windows because the 'expected output' json files in tests can't be made dynamic, so they use "\n" as convention
+* text=auto eol=lf
