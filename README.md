@@ -11,7 +11,7 @@ For more information about the component specification, visit the page on [compo
 npm install rcu
 ```
 
-...or grab the [UMD build](https://npmcdn.com/rcu) or [ES2015 build](https://npmcdn.com/rcu/dist/rcu.es6.js) from npmcdn.com.
+...or grab the [UMD build](https://unpkg.com/rcu) or [ES2015 build](https://unpkg.com/rcu/dist/rcu.es6.js) from unpkg.com.
 
 
 ## Usage
