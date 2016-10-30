@@ -1,6 +1,8 @@
 # rcu changelog
 
-## 0.9.0-edge
+## 0.9.0
+
+* Support Ractive 0.8
 
 ## 0.8.2
 
