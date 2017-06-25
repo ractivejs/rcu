@@ -1,6 +1,6 @@
 {
   "name": "rcu",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "Utilities for implementing Ractive.js component loaders",
   "license": "MIT",
   "repository": "https://github.com/ractivejs/rcu",
@@ -16,7 +16,7 @@
     "sander": "^0.5.0",
     "source-map": "^0.5.3",
     "tippex": "^2.1.2",
-    "vlq": "^0.2.1"
+    "vlq": "0.2.1"
   },
   "main": "dist/rcu.umd.js",
   "jsnext:main": "dist/rcu.es6.js",
