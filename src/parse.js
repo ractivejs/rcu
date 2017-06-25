@@ -6,16 +6,16 @@ import getLinePosition from './utils/getLinePosition.js';
 const requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
 const TEMPLATE_VERSION = 4;
 
-export default function parse ( source ) {
+export default function parse ( source, parseOptions, typeAttrs ) {
 	if ( !Ractive ) {
 		throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );
 	}
 
-	const parsed = Ractive.parse( source, {
+	const parsed = Ractive.parse( source, Object.assign( {
 		noStringify: true,
 		interpolate: { script: false, style: false },
 		includeLinePositions: true
-	});
+	}, parseOptions || {} ) );
 
 	if ( parsed.v !== TEMPLATE_VERSION ) {
 		console.warn( `Mismatched template version (expected ${TEMPLATE_VERSION}, got ${parsed.v})! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app` ); // eslint-disable-line no-console
@@ -41,14 +41,14 @@ export default function parse ( source ) {
 			}
 
 			attr = getAttr( 'type', item );
-			if ( item.e === 'script' && ( !attr || attr === 'text/javascript' ) ) {
+			if ( item.e === 'script' && ( !attr || attr === ( typeAttrs && typeAttrs.js ? typeAttrs.js : 'text/javascript' ) ) ) {
 				if ( scriptItem ) {
 					throw new Error( 'You can only have one <script> tag per component file' );
 				}
 				scriptItem = template.splice( i, 1 )[0];
 			}
 
-			if ( item.e === 'style' && ( !attr || attr === 'text/css' ) ) {
+			if ( item.e === 'style' && ( !attr || attr === ( typeAttrs && typeAttrs.css ? typeAttrs.js : 'text/css' ) ) ) {
 				styles.push( template.splice( i, 1 )[0] );
 			}
 		}

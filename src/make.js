@@ -10,8 +10,10 @@ export default function make ( source, config, callback, errback ) {
 	const url        = config.url || '';
 	const loadImport = config.loadImport;
 	const loadModule = config.loadModule;
+	const parseOptions = config.parseOptions;
+	const typeAttrs = config.typeAttrs;
 
-	const definition = parse( source );
+	const definition = parse( source, parseOptions, typeAttrs );
 
 	let imports = {};
 
