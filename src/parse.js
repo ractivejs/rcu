@@ -48,7 +48,7 @@ export default function parse ( source, parseOptions, typeAttrs ) {
 				scriptItem = template.splice( i, 1 )[0];
 			}
 
-			if ( item.e === 'style' && ( !attr || attr === ( typeAttrs && typeAttrs.css ? typeAttrs.js : 'text/css' ) ) ) {
+			if ( item.e === 'style' && ( !attr || attr === ( typeAttrs && typeAttrs.css ? typeAttrs.css : 'text/css' ) ) ) {
 				styles.push( template.splice( i, 1 )[0] );
 			}
 		}
