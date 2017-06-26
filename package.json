@@ -1,6 +1,6 @@
 {
   "name": "rcu",
-  "version": "0.10.0",
+  "version": "0.10.2",
   "description": "Utilities for implementing Ractive.js component loaders",
   "license": "MIT",
   "repository": "https://github.com/ractivejs/rcu",
@@ -27,7 +27,7 @@
     "test": "mocha",
     "pretest": "npm run build",
     "lint": "eslint src",
-    "prepublish": "npm run lint && rm -rf dist && npm test && npm run build:es6"
+    "prepublish": "npm run lint && rm -rf dist && npm test && npm run build"
   },
   "files": [
     "dist",
