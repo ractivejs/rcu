@@ -13,9 +13,8 @@ export default function parse ( source, parseOptions, typeAttrs ) {
 
 	const parsed = Ractive.parse( source, Object.assign( {
 		noStringify: true,
-		interpolate: { script: false, style: false },
-		includeLinePositions: true
-	}, parseOptions || {} ) );
+		interpolate: { script: false, style: false }
+	}, parseOptions || {}, { includeLinePositions: true } ) );
 
 	if ( parsed.v !== TEMPLATE_VERSION ) {
 		console.warn( `Mismatched template version (expected ${TEMPLATE_VERSION}, got ${parsed.v})! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app` ); // eslint-disable-line no-console
@@ -101,6 +100,24 @@ export default function parse ( source, parseOptions, typeAttrs ) {
 			const source = doubleQuoted || singleQuoted;
 			if ( !~modules.indexOf( source ) ) modules.push( source );
 		});
+	}
+
+	// remove line positions to reduce the size
+	if ( parseOptions && parseOptions.includeLinePositions === false ) {
+		let clean = ( value ) => {
+			if ( !value || typeof value !== 'object' ) {
+				return value;
+			}
+
+			if ( Object.prototype.hasOwnProperty.call( value, 'p' ) && Array.isArray( value.p ) && !value.p.filter( n => !Number.isInteger( n ) ).length ) {
+				delete value.p;
+			}
+
+			Object.keys( value ).forEach( key => clean( value[key] ) );
+			return value;
+		};
+
+		clean( result );
 	}
 
 	return result;
