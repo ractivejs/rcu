@@ -21,7 +21,7 @@ npm install rcu
 Before you can use `rcu.parse()` or `rcu.make()`, which use `Ractive.parse()` and `Ractive.extend()` respectively, you need to 'initialise' rcu by giving it a reference to `Ractive`.
 
 
-### rcu.parse( source )
+### rcu.parse( source, parseOptions = {} )
 
 This function converts the `source` - the contents of an HTML component file - into an intermediate representation. Taking the [example component](https://github.com/ractivejs/component-spec/blob/master/authors.md#example-component), `rcu.parse()` would return something like this:
 
