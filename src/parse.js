@@ -11,10 +11,17 @@ export default function parse ( source, parseOptions, typeAttrs ) {
 		throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );
 	}
 
-	const parsed = Ractive.parse( source, Object.assign( {
+
+	let fromCache = getFromCache(source);
+
+	const parsed = fromCache || Ractive.parse( source, Object.assign( {
 		noStringify: true,
 		interpolate: { script: false, style: false }
 	}, parseOptions || {}, { includeLinePositions: true } ) );
+
+	if (fromCache === undefined) {
+		registerCache(source, parsed);
+	}
 
 	if ( parsed.v !== TEMPLATE_VERSION ) {
 		console.warn( `Mismatched template version (expected ${TEMPLATE_VERSION}, got ${parsed.v})! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app` ); // eslint-disable-line no-console
@@ -121,6 +128,40 @@ export default function parse ( source, parseOptions, typeAttrs ) {
 	}
 
 	return result;
+}
+
+
+function checksum (s) {
+	let chk = 0x12345678;
+	let len = s.length;
+
+	for (let i = 0; i < len; i++) {
+		chk += (s.charCodeAt(i) * (i + 1));
+	}
+
+	return (chk & 0xffffffff).toString(16);
+}
+
+const CACHE_PREFIX = '_rcu_';
+
+let registerCache = function (source, compiled) {
+	let checkSum = checksum(source);
+	if (typeof window != 'undefined' && typeof window.localStorage != 'undefined') {
+		window.localStorage.setItem(`${CACHE_PREFIX}${checkSum}`, JSON.stringify(compiled));
+	}
+};
+
+function getFromCache (source) {
+	let checkSum = checksum(source);
+	if (typeof window != 'undefined' && typeof window.localStorage != 'undefined') {
+		let item = localStorage.getItem(`${CACHE_PREFIX}${checkSum}`);
+		if (item) {
+			return JSON.parse(item);
+		} else {
+			return undefined;
+		}
+	}
+	return undefined;
 }
 
 function getAttr ( name, node ) {
