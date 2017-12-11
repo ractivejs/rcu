@@ -13,7 +13,7 @@ export default function make ( source, config, callback, errback ) {
 	const parseOptions = config.parseOptions;
 	const typeAttrs = config.typeAttrs;
 
-	const definition = parse( source, parseOptions, typeAttrs );
+	const definition = parse( source, parseOptions, typeAttrs, url );
 
 	let imports = {};
 

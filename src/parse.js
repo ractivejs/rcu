@@ -5,14 +5,15 @@ import getLinePosition from './utils/getLinePosition.js';
 
 const requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
 const TEMPLATE_VERSION = 4;
+const CACHE_PREFIX = '_rcu_';
 
-export default function parse ( source, parseOptions, typeAttrs ) {
+export default function parse ( source, parseOptions, typeAttrs, identifier ) {
 	if ( !Ractive ) {
 		throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );
 	}
 
 
-	let fromCache = getFromCache(source);
+	let fromCache = getFromCache(source, identifier);
 
 	const parsed = fromCache || Ractive.parse( source, Object.assign( {
 		noStringify: true,
@@ -20,7 +21,7 @@ export default function parse ( source, parseOptions, typeAttrs ) {
 	}, parseOptions || {}, { includeLinePositions: true } ) );
 
 	if (fromCache === undefined) {
-		registerCache(source, parsed);
+		registerCache(source, parsed, identifier);
 	}
 
 	if ( parsed.v !== TEMPLATE_VERSION ) {
@@ -142,24 +143,35 @@ function checksum (s) {
 	return (chk & 0xffffffff).toString(16);
 }
 
-const CACHE_PREFIX = '_rcu_';
 
-let registerCache = function (source, compiled) {
-	let checkSum = checksum(source);
-	if (typeof window != 'undefined' && typeof window.localStorage != 'undefined') {
-		window.localStorage.setItem(`${CACHE_PREFIX}${checkSum}`, JSON.stringify(compiled));
+let getCacheKey = function (identifier, checksum) {
+	return identifier ? CACHE_PREFIX + identifier : CACHE_PREFIX + checksum;
+};
+
+let registerCache = function (source, compiled, identifier) {
+	try {
+		let checkSum = checksum(source);
+		if (typeof window != 'undefined' && typeof window.localStorage != 'undefined') {
+			window.localStorage.setItem(getCacheKey(identifier, checkSum), JSON.stringify(compiled));
+		}
+	} catch (e) {
+		//noop
 	}
 };
 
-function getFromCache (source) {
-	let checkSum = checksum(source);
-	if (typeof window != 'undefined' && typeof window.localStorage != 'undefined') {
-		let item = localStorage.getItem(`${CACHE_PREFIX}${checkSum}`);
-		if (item) {
-			return JSON.parse(item);
-		} else {
-			return undefined;
+function getFromCache (source, identifier) {
+	try {
+		let checkSum = checksum(source);
+		if (typeof window != 'undefined' && typeof window.localStorage != 'undefined') {
+			let item = localStorage.getItem(getCacheKey(identifier,checkSum));
+			if (item) {
+				return JSON.parse(item);
+			} else {
+				return undefined;
+			}
 		}
+	} catch (e) {
+		//noop
 	}
 	return undefined;
 }
