@@ -8,12 +8,13 @@ export default function make ( source, config, callback, errback ) {
 
 	// Implementation-specific config
 	const url        = config.url || '';
+	const versionSuffix = config.versionSuffix || '';
 	const loadImport = config.loadImport;
 	const loadModule = config.loadModule;
 	const parseOptions = config.parseOptions;
 	const typeAttrs = config.typeAttrs;
 
-	const definition = parse( source, parseOptions, typeAttrs, url );
+	const definition = parse( source, parseOptions, typeAttrs, url, versionSuffix );
 
 	let imports = {};
 
