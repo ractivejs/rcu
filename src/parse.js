@@ -152,7 +152,8 @@ let prepareCacheEntry = function (compiled, checkSum, versionSuffix) {
 		date: new Date(),
 		checkSum: checkSum,
 		data: compiled,
-		versionSuffix: versionSuffix
+		versionSuffix: versionSuffix,
+		ractiveVersion: Ractive.VERSION
 	};
 };
 
@@ -174,7 +175,7 @@ function getFromCache (source, identifier) {
 			let item = localStorage.getItem(getCacheKey(identifier,checkSum));
 			if (item) {
 				let parsed = JSON.parse(item);
-				return parsed.checkSum === checkSum ? parsed.data : undefined;
+				return parsed.checkSum === checkSum && Ractive.VERSION === parsed.ractiveVersion ? parsed.data : undefined;
 			} else {
 				return undefined;
 			}
