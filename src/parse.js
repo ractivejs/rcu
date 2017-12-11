@@ -7,7 +7,7 @@ const requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
 const TEMPLATE_VERSION = 4;
 const CACHE_PREFIX = '_rcu_';
 
-export default function parse ( source, parseOptions, typeAttrs, identifier ) {
+export default function parse ( source, parseOptions, typeAttrs, identifier, versionSuffix ) {
 	if ( !Ractive ) {
 		throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );
 	}
@@ -21,7 +21,7 @@ export default function parse ( source, parseOptions, typeAttrs, identifier ) {
 	}, parseOptions || {}, { includeLinePositions: true } ) );
 
 	if (fromCache === undefined) {
-		registerCache(source, parsed, identifier);
+		registerCache(source, parsed, identifier, versionSuffix);
 	}
 
 	if ( parsed.v !== TEMPLATE_VERSION ) {
@@ -143,16 +143,24 @@ function checksum (s) {
 	return (chk & 0xffffffff).toString(16);
 }
 
-
 let getCacheKey = function (identifier, checksum) {
 	return identifier ? CACHE_PREFIX + identifier : CACHE_PREFIX + checksum;
 };
 
-let registerCache = function (source, compiled, identifier) {
+let prepareCacheEntry = function (compiled, checkSum, versionSuffix) {
+	return {
+		date: new Date(),
+		checkSum: checkSum,
+		data: compiled,
+		versionSuffix: versionSuffix
+	};
+};
+
+let registerCache = function (source, compiled, identifier, versionSuffix) {
 	try {
 		let checkSum = checksum(source);
 		if (typeof window != 'undefined' && typeof window.localStorage != 'undefined') {
-			window.localStorage.setItem(getCacheKey(identifier, checkSum), JSON.stringify(compiled));
+			window.localStorage.setItem(getCacheKey(identifier, checkSum), JSON.stringify(prepareCacheEntry(compiled, checkSum, versionSuffix)));
 		}
 	} catch (e) {
 		//noop
@@ -165,7 +173,8 @@ function getFromCache (source, identifier) {
 		if (typeof window != 'undefined' && typeof window.localStorage != 'undefined') {
 			let item = localStorage.getItem(getCacheKey(identifier,checkSum));
 			if (item) {
-				return JSON.parse(item);
+				let parsed = JSON.parse(item);
+				return parsed.checkSum === checkSum ? parsed.data : undefined;
 			} else {
 				return undefined;
 			}
