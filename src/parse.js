@@ -87,6 +87,10 @@ export default function parse ( source, parseOptions, typeAttrs, identifier, ver
 		script: ''
 	};
 
+	if (identifier) {
+		result._componentPath = identifier;
+	}
+
 	// extract position information, so that we can generate source maps
 	if ( scriptItem && scriptItem.f ) {
 		const content = scriptItem.f[0];
