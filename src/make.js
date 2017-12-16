@@ -42,6 +42,7 @@ export default function make ( source, config, callback, errback ) {
 		let options = {
 			template: definition.template,
 			partials: definition.partials,
+			_componentPath: definition._componentPath,
 			css: determineCss(definition.css),
 			components: imports
 		};

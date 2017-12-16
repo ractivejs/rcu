@@ -773,6 +773,10 @@
 			script: ''
 		};
 
+		if (identifier) {
+			result._componentPath = identifier;
+		}
+
 		// extract position information, so that we can generate source maps
 		if ( scriptItem && scriptItem.f ) {
 			var content = scriptItem.f[0];
@@ -925,6 +929,7 @@
 			var options = {
 				template: definition.template,
 				partials: definition.partials,
+				_componentPath: definition._componentPath,
 				css: determineCss(definition.css),
 				components: imports
 			};

@@ -767,6 +767,10 @@ function parse ( source, parseOptions, typeAttrs, identifier, versionSuffix ) {
 		script: ''
 	};
 
+	if (identifier) {
+		result._componentPath = identifier;
+	}
+
 	// extract position information, so that we can generate source maps
 	if ( scriptItem && scriptItem.f ) {
 		var content = scriptItem.f[0];
@@ -919,6 +923,7 @@ function make ( source, config, callback, errback ) {
 		var options = {
 			template: definition.template,
 			partials: definition.partials,
+			_componentPath: definition._componentPath,
 			css: determineCss(definition.css),
 			components: imports
 		};
