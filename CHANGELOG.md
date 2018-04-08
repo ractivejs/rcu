@@ -1,5 +1,9 @@
 # rcu changelog
 
+# 0.11.0
+
+* Support Ractive 0.10.0
+
 ## 0.9.0
 
 * Support Ractive 0.8
