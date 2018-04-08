@@ -95,7 +95,7 @@ export default function parse ( source, parseOptions, typeAttrs, identifier, ver
 	if ( scriptItem && scriptItem.f ) {
 		const content = scriptItem.f[0];
 
-		const contentStart = source.indexOf( '>', scriptItem.p[2] ) + 1;
+		const contentStart = source.indexOf( '>', scriptItem.q ? scriptItem.q[2] : scriptItem.p[2] ) + 1;
 
 		// we have to jump through some hoops to find contentEnd, because the contents
 		// of the <script> tag get trimmed at parse time
