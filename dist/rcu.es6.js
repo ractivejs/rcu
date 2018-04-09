@@ -775,7 +775,7 @@ function parse ( source, parseOptions, typeAttrs, identifier, versionSuffix ) {
 	if ( scriptItem && scriptItem.f ) {
 		var content = scriptItem.f[0];
 
-		var contentStart = source.indexOf( '>', scriptItem.p[2] ) + 1;
+		var contentStart = source.indexOf( '>', scriptItem.q ? scriptItem.q[2] : scriptItem.p[2] ) + 1;
 
 		// we have to jump through some hoops to find contentEnd, because the contents
 		// of the <script> tag get trimmed at parse time
