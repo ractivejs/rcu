@@ -8,20 +8,42 @@ export default function make ( source, config, callback, errback ) {
 
 	// Implementation-specific config
 	const url        = config.url || '';
+	const versionSuffix = config.versionSuffix || '';
 	const loadImport = config.loadImport;
 	const loadModule = config.loadModule;
 	const parseOptions = config.parseOptions;
 	const typeAttrs = config.typeAttrs;
 
-	const definition = parse( source, parseOptions, typeAttrs );
+	const definition = parse( source, parseOptions, typeAttrs, url, versionSuffix );
 
 	let imports = {};
+
+	function cssContainsRactiveDelimiters (cssDefinition) {
+		//TODO: this can use Ractive's default delimiter definitions, and perhaps a single REGEX for match
+		return cssDefinition
+            && cssDefinition.indexOf('{{') !== -1
+            && cssDefinition.indexOf('}}') !== -1;
+	}
+
+	function determineCss (cssDefinition) {
+		if (cssContainsRactiveDelimiters(cssDefinition)) {
+			return function (d) {
+				return Ractive({
+					template: definition.css,
+					data: d()
+				}).fragment.toString(false);
+			};
+		} else {
+			return definition.css;
+		}
+	}
 
 	function createComponent () {
 		let options = {
 			template: definition.template,
 			partials: definition.partials,
-			css: definition.css,
+			_componentPath: definition._componentPath,
+			css: determineCss(definition.css),
 			components: imports
 		};
 

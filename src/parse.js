@@ -5,16 +5,24 @@ import getLinePosition from './utils/getLinePosition.js';
 
 const requirePattern = /require\s*\(\s*(?:"([^"]+)"|'([^']+)')\s*\)/g;
 const TEMPLATE_VERSION = 4;
+const CACHE_PREFIX = '_rcu_';
 
-export default function parse ( source, parseOptions, typeAttrs ) {
+export default function parse ( source, parseOptions, typeAttrs, identifier, versionSuffix ) {
 	if ( !Ractive ) {
 		throw new Error( 'rcu has not been initialised! You must call rcu.init(Ractive) before rcu.parse()' );
 	}
 
-	const parsed = Ractive.parse( source, Object.assign( {
+
+	let fromCache = getFromCache(source, identifier);
+
+	const parsed = fromCache || Ractive.parse( source, Object.assign( {
 		noStringify: true,
 		interpolate: { script: false, style: false }
 	}, parseOptions || {}, { includeLinePositions: true } ) );
+
+	if (fromCache === undefined) {
+		registerCache(source, parsed, identifier, versionSuffix);
+	}
 
 	if ( parsed.v !== TEMPLATE_VERSION ) {
 		console.warn( `Mismatched template version (expected ${TEMPLATE_VERSION}, got ${parsed.v})! Please ensure you are using the latest version of Ractive.js in your build process as well as in your app` ); // eslint-disable-line no-console
@@ -79,11 +87,15 @@ export default function parse ( source, parseOptions, typeAttrs ) {
 		script: ''
 	};
 
+	if (identifier) {
+		result._componentPath = identifier;
+	}
+
 	// extract position information, so that we can generate source maps
 	if ( scriptItem && scriptItem.f ) {
 		const content = scriptItem.f[0];
 
-		const contentStart = source.indexOf( '>', scriptItem.p[2] ) + 1;
+		const contentStart = source.indexOf( '>', scriptItem.q ? scriptItem.q[2] : scriptItem.p[2] ) + 1;
 
 		// we have to jump through some hoops to find contentEnd, because the contents
 		// of the <script> tag get trimmed at parse time
@@ -121,6 +133,61 @@ export default function parse ( source, parseOptions, typeAttrs ) {
 	}
 
 	return result;
+}
+
+
+function checksum (s) {
+	let chk = 0x12345678;
+	let len = s.length;
+
+	for (let i = 0; i < len; i++) {
+		chk += (s.charCodeAt(i) * (i + 1));
+	}
+
+	return (chk & 0xffffffff).toString(16);
+}
+
+let getCacheKey = function (identifier, checksum) {
+	return identifier ? CACHE_PREFIX + identifier : CACHE_PREFIX + checksum;
+};
+
+let prepareCacheEntry = function (compiled, checkSum, versionSuffix) {
+	return {
+		date: new Date(),
+		checkSum: checkSum,
+		data: compiled,
+		versionSuffix: versionSuffix,
+		ractiveVersion: Ractive.VERSION
+	};
+};
+
+let registerCache = function (source, compiled, identifier, versionSuffix) {
+	try {
+		let checkSum = checksum(source);
+		if (typeof window != 'undefined' && typeof window.localStorage != 'undefined') {
+			window.localStorage.setItem(getCacheKey(identifier, checkSum), JSON.stringify(prepareCacheEntry(compiled, checkSum, versionSuffix)));
+		}
+	} catch (e) {
+		//noop
+	}
+};
+
+function getFromCache (source, identifier) {
+	try {
+		let checkSum = checksum(source);
+		if (typeof window != 'undefined' && typeof window.localStorage != 'undefined') {
+			let item = localStorage.getItem(getCacheKey(identifier,checkSum));
+			if (item) {
+				let parsed = JSON.parse(item);
+				return parsed.checkSum === checkSum && Ractive.VERSION === parsed.ractiveVersion ? parsed.data : undefined;
+			} else {
+				return undefined;
+			}
+		}
+	} catch (e) {
+		//noop
+	}
+	return undefined;
 }
 
 function getAttr ( name, node ) {
