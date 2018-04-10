@@ -95,6 +95,7 @@ export default function parse ( source, parseOptions, typeAttrs, identifier, ver
 	if ( scriptItem && scriptItem.f ) {
 		const content = scriptItem.f[0];
 
+		// Ractive >= 0.10 uses .q, older versions use .p
 		const contentStart = source.indexOf( '>', scriptItem.q ? scriptItem.q[2] : scriptItem.p[2] ) + 1;
 
 		// we have to jump through some hoops to find contentEnd, because the contents
@@ -121,9 +122,13 @@ export default function parse ( source, parseOptions, typeAttrs, identifier, ver
 				return value;
 			}
 
-			if ( Object.prototype.hasOwnProperty.call( value, 'p' ) && Array.isArray( value.p ) && !value.p.filter( n => !Number.isInteger( n ) ).length ) {
-				delete value.p;
-			}
+			// Ractive >= 0.10 uses .q, older versions use .p
+			[ 'q', 'p' ].some( ( key ) => {
+				if ( Object.prototype.hasOwnProperty.call( value, key ) && Array.isArray( value[ key ] ) && !value[ key ].filter( n => !Number.isInteger( n ) ).length ) {
+					delete value[ key ];
+					return true;
+				}
+			});
 
 			Object.keys( value ).forEach( key => clean( value[key] ) );
 			return value;
