@@ -1,7 +1,7 @@
 export default function resolvePath ( relativePath, base ) {
 	// If we've got an absolute path, or base is '', return
 	// relativePath
-	if ( !base || relativePath.charAt( 0 ) === '/' ) {
+	if ( !base || relativePath.charAt( 0 ) === '/' || (relativePath.indexOf('blob:') === 0) ) {
 		return relativePath;
 	}
 
